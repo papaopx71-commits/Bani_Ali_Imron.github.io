@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>BANI ALI IMRON - Silsilah Keluarga</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Leaflet CSS dan JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-800: #1e293b;
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: white;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading-spinner-large {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .clock-container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-full);
+            padding: 0.75rem 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: white;
+            flex-wrap: wrap;
+        }
+
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 9999;
+            border-left: 4px solid var(--success);
+        }
+
+        .sync-indicator.syncing { border-left-color: var(--warning); }
+        .sync-indicator.error { border-left-color: var(--danger); }
+
+        .save-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-200);
+            border-radius: 50%;
+            border-top-color: var(--warning);
+            animation: spin 1s linear infinite;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .family-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .family-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-full);
+        }
+
+        .couple-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .couple-container::after {
+            content: '❤️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .parent-item {
+            flex: 0 1 250px;
+            background: var(--gray-100);
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border-top: 4px solid;
+        }
+
+        .parent-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .parent-item.male { border-top-color: var(--primary); }
+        .parent-item.female { border-top-color: var(--accent); }
+
+        .small-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid white;
+        }
+
+        .children-list {
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+        }
+
+        .child-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            margin-bottom: 0.5rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .child-item:hover {
+            transform: translateX(5px);
+            border-left: 4px solid var(--primary);
+        }
+
+        .child-number {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: bold;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .photo-item {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .photo-placeholder {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background-size: cover;
+            background-position: center;
+            border: 3px solid white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            margin: 2rem auto;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray-800);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--primary);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .map-container {
+            height: 200px;
+            width: 100%;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--gray-200);
+            margin: 0.5rem 0;
+        }
+
+        .spouse-row {
+            background: #fff5f5;
+            padding: 0.75rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--accent);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 10001;
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+
+        @media (max-width: 640px) {
+            .stats-container { grid-template-columns: repeat(2, 1fr); }
+            .couple-container { gap: 1rem; }
+            .couple-container::after { font-size: 1rem; padding: 0.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner-large"></div>
+        <div>Memuat data keluarga...</div>
+    </div>
+
+    <div class="container">
+        <!-- Clock -->
+        <div class="clock-container">
+            <div class="clock-item">
+                <i class="fas fa-calendar"></i>
+                <span id="currentDate"></span>
+            </div>
+            <div class="clock-item">
+                <i class="fas fa-clock"></i>
+                <span class="clock-time" id="currentTime"></span>
+            </div>
+            <div class="clock-item">
+                <i class="fas fa-mosque"></i>
+                <span id="hijriDate"></span>
+            </div>
+        </div>
+
+        <!-- Sync Indicator -->
+        <div id="syncIndicator" class="sync-indicator">
+            <i class="fas fa-cloud"></i>
+            <span>Tersimpan</span>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🌳 BANI ALI IMRON</h1>
+            <p>Silsilah Keluarga - Ali Imron & Asmah</p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="previewDiagram()">
+                    <i class="fas fa-project-diagram"></i> Diagram
+                </button>
+                <button class="btn" onclick="tambahAnggotaBaru()">
+                    <i class="fas fa-user-plus"></i> Tambah Anggota
+                </button>
+                <button class="btn" onclick="exportData()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button class="btn" onclick="importData()">
+                    <i class="fas fa-upload"></i> Import
+                </button>
+                <button class="btn" onclick="resetData()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="number" id="totalAnggota">0</div>
+                <div>Total Anggota</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalGenerasi">0</div>
+                <div>Generasi</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalKeluarga">0</div>
+                <div>Keluarga</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalHidup">0</div>
+                <div>Masih Hidup</div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="action-buttons">
+            <input type="text" id="searchInput" placeholder="Cari nama..." style="flex:1; padding:0.5rem 1rem; border-radius:var(--radius-full); border:none;">
+            <button class="btn" onclick="searchFamily()"><i class="fas fa-search"></i> Cari</button>
+            <button class="btn" onclick="resetSearch()"><i class="fas fa-times"></i> Reset</button>
+        </div>
+
+        <!-- Keluarga Inti -->
+        <div class="family-card" id="keluargaInti">
+            <div class="family-header">
+                <h2>👑 Pendiri Bani Ali Imron</h2>
+                <span class="badge">Generasi 1</span>
+            </div>
+            
+            <div class="couple-container" id="pendiriContainer"></div>
+
+            <div class="children-list">
+                <h3>👶 Anak-anak (Generasi 2)</h3>
+                <div id="anakContainer"></div>
+                <button class="btn btn-primary" onclick="tambahAnak('ALI_IMRON')" style="margin-top:0.5rem; width:100%;">
+                    <i class="fas fa-plus"></i> Tambah Anak
+                </button>
+            </div>
+        </div>
+
+        <!-- Keluarga Lainnya -->
+        <div id="keluargaLainnya"></div>
+
+        <!-- Gallery -->
+        <div class="family-card">
+            <div class="family-header">
+                <h2>📸 Galeri Keluarga</h2>
+                <button class="btn" onclick="openBulkUpload()"><i class="fas fa-cloud-upload-alt"></i> Upload</button>
+            </div>
+            <div class="photo-grid" id="photoGallery"></div>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Anggota Keluarga</h3>
+                <button class="close-btn" onclick="tutupModal()">&times;</button>
+            </div>
+            
+            <form id="familyForm" onsubmit="simpanData(event)">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="parentId">
+                
+                <div style="text-align:center;">
+                    <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
+                        <span>📷</span>
+                    </div>
+                    <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)" style="display:none;">
+                    <button type="button" class="btn" onclick="document.getElementById('photoInput').click()">Pilih Foto</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Lengkap *</label>
+                    <input type="text" id="nama" required placeholder="Masukkan nama" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Kelamin *</label>
+                    <select id="gender" required>
+                        <option value="">Pilih</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status" onchange="toggleStatusMeninggal()">
+                        <option value="hidup">Masih Hidup</option>
+                        <option value="meninggal">Meninggal Dunia</option>
+                    </select>
+                </div>
+
+                <div id="meninggalGroup" style="display:none;">
+                    <div class="form-group">
+                        <label>Tahun Meninggal</label>
+                        <input type="text" id="tahunMeninggal" placeholder="Contoh: 2020">
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan Meninggal</label>
+                        <textarea id="keteranganMeninggal" placeholder="Sebab meninggal"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tempat Lahir</label>
+                    <input type="text" id="tempatLahir" placeholder="Tempat lahir">
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Lahir</label>
+                    <input type="date" id="tanggalLahir">
+                </div>
+
+                <div class="form-group">
+                    <label>Alamat</label>
+                    <textarea id="alamat" placeholder="Alamat lengkap"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Lokasi Peta</label>
+                    <div id="mapPreview" class="map-container"></div>
+                    <div style="display:flex; gap:0.25rem; margin-top:0.25rem;">
+                        <input type="text" id="mapLat" placeholder="Latitude" value="-6.2088">
+                        <input type="text" id="mapLng" placeholder="Longitude" value="106.8456">
+                        <button type="button" class="btn" onclick="cariLokasi()">Cari</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>No. Telepon</label>
+                    <input type="tel" id="telepon" placeholder="Contoh: 08123456789">
+                </div>
+
+                <div class="form-group">
+                    <label>Pendidikan</label>
+                    <input type="text" id="pendidikan" placeholder="Pendidikan terakhir">
+                </div>
+
+                <div class="form-group">
+                    <label>Pekerjaan</label>
+                    <input type="text" id="pekerjaan" placeholder="Pekerjaan">
+                </div>
+
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <textarea id="keterangan" placeholder="Informasi tambahan"></textarea>
+                </div>
+
+                <div class="form-group" id="pasanganSection">
+                    <label>Pasangan (jika sudah menikah)</label>
+                    <div id="pasanganContainer"></div>
+                    <button type="button" class="btn" onclick="tambahPasangan()" style="margin-top:0.25rem; width:100%;">
+                        <i class="fas fa-plus"></i> Tambah Pasangan
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+                
+                <button type="button" class="btn btn-danger" onclick="hapusAnggota()" style="width:100%; margin-top:0.5rem; display:none;" id="hapusBtn">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Diagram -->
+    <div id="diagramModal" class="modal">
+        <div class="modal-content" style="max-width:800px;">
+            <div class="modal-header">
+                <h3>Diagram Keluarga</h3>
+                <button class="close-btn" onclick="tutupDiagram()">&times;</button>
+            </div>
+            <div id="diagramContent" style="overflow-x:auto; padding:1rem; min-height:300px; font-family: monospace;"></div>
+            <button class="btn btn-primary" onclick="downloadDiagram()" style="width:100%; margin-top:1rem;">
+                <i class="fas fa-download"></i> Download Diagram
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h3 id="detailTitle">Detail Anggota</h3>
+                <button class="close-btn" onclick="tutupDetailModal()">&times;</button>
+            </div>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ==================== KONFIGURASI FIREBASE ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFzpkDQ4-XxE3LEKd2hAdicCe3KscQkDs",
+            authDomain: "bani-ali-imron.firebaseapp.com",
+            databaseURL: "https://bani-ali-imron-default-rtdb.firebaseio.com",
+            projectId: "bani-ali-imron",
+            storageBucket: "bani-ali-imron.firebasestorage.app",
+            messagingSenderId: "150471042717",
+            appId: "1:150471042717:web:5a7596ef251d68a2df1674"
+        };
+
+        // Inisialisasi Firebase
+        let database;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            console.log('✅ Firebase initialized');
+        } catch (e) {
+            console.error('❌ Firebase init error:', e);
+        }
+
+        // ==================== DATA DEFAULT ====================
+        const DATA_DEFAULT = {
+            pendiri: {
+                id: "ALI_IMRON",
+                nama: "ALI IMRON",
+                gender: "L",
+                status: "hidup",
+                pasangan: ["ASMAH"],
+                anak: []
+            },
+            anggota: {
+                "ALI_IMRON": {
+                    id: "ALI_IMRON",
+                    nama: "ALI IMRON",
+                    gender: "L",
+                    status: "hidup",
+                    pasangan: ["ASMAH"],
+                    anak: []
+                },
+                "ASMAH": {
+                    id: "ASMAH",
+                    nama: "ASMAH",
+                    gender: "P",
+                    status: "hidup",
+                    pasangan: ["ALI_IMRON"],
+                    anak: []
+                }
+            }
+        };
+
+        // ==================== VARIABEL GLOBAL ====================
+        let keluargaData = JSON.parse(JSON.stringify(DATA_DEFAULT));
+        let map = null;
+        let marker = null;
+        let currentEditId = null;
+        let currentParentId = null;
+        let isSaving = false;
+
+        // ==================== INISIALISASI ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📱 DOM loaded');
+            initFirebase();
+            initClock();
+            initHijriDate();
+        });
+
+        function initFirebase() {
+            if (!database) {
+                console.warn('⚠️ Database tidak tersedia, menggunakan mode lokal');
+                showToast('Mode lokal (tanpa Firebase)', 'warning');
+                renderSemua();
+                document.getElementById('loadingOverlay').style.display = 'none';
+                return;
+            }
+
+            // Test koneksi
+            database.ref('.info/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    console.log('✅ Terhubung ke Firebase');
+                    showToast('Terhubung ke database', 'success');
+                }
+            });
+
+            // Ambil data
+            database.ref('keluarga').once('value')
+                .then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.anggota && data.pendiri) {
+                        keluargaData = data;
+                        console.log('📦 Data dimuat:', Object.keys(keluargaData.anggota).length, 'anggota');
+                        showToast('Data berhasil dimuat', 'success');
+                    } else {
+                        console.log('📦 Data kosong, menyimpan default');
+                        return database.ref('keluarga').set(DATA_DEFAULT)
+                            .then(() => {
+                                keluargaData = JSON.parse(JSON.stringify(DATA_DEFAULT));
+                                console.log('✅ Data default disimpan');
+                                showToast('Data default dibuat', 'success');
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error('❌ Firebase error:', error);
+                    showToast('Error: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    renderSemua();
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                });
+        }
+
+        function simpanKeFirebase() {
+            return new Promise((resolve, reject) => {
+                if (!database) {
+                    // Mode lokal - hanya simpan di memory
+                    console.log('📝 Data disimpan lokal');
+                    showToast('Data tersimpan (lokal)', 'success');
+                    resolve(true);
+                    return;
+                }
+
+                if (isSaving) {
+                    reject('Sedang menyimpan...');
+                    return;
+                }
+
+                isSaving = true;
+                updateSyncIndicator('syncing', 'Menyimpan...');
+
+                // Validasi data
+                if (!keluargaData.anggota) keluargaData.anggota = {};
+                if (!keluargaData.pendiri) keluargaData.pendiri = DATA_DEFAULT.pendiri;
+
+                // Pastikan pendiri selalu ada
+                if (!keluargaData.anggota['ALI_IMRON']) {
+                    keluargaData.anggota['ALI_IMRON'] = DATA_DEFAULT.anggota['ALI_IMRON'];
+                }
+                if (!keluargaData.anggota['ASMAH']) {
+                    keluargaData.anggota['ASMAH'] = DATA_DEFAULT.anggota['ASMAH'];
+                }
+
+                console.log('💾 Menyimpan data...');
+                
+                database.ref('keluarga').set(keluargaData)
+                    .then(() => {
+                        console.log('✅ Data tersimpan');
+                        updateSyncIndicator('saved', 'Tersimpan');
+                        showToast('Data berhasil disimpan', 'success');
+                        isSaving = false;
+                        resolve(true);
+                    })
+                    .catch((error) => {
+                        console.error('❌ Save error:', error);
+                        updateSyncIndicator('error', 'Gagal menyimpan');
+                        showToast('Gagal: ' + error.message, 'error');
+                        isSaving = false;
+                        reject(error);
+                    });
+            });
+        }
+
+        function updateSyncIndicator(status, message) {
+            const indicator = document.getElementById('syncIndicator');
+            indicator.className = 'sync-indicator';
+            
+            if (status === 'syncing') {
+                indicator.classList.add('syncing');
+                indicator.innerHTML = '<div class="save-spinner"></div><span>' + message + '</span>';
+            } else if (status === 'error') {
+                indicator.classList.add('error');
+                indicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>' + message + '</span>';
+            } else {
+                indicator.innerHTML = '<i class="fas fa-cloud"></i><span>' + message + '</span>';
+            }
+        }
+
+        function initClock() {
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+        }
+
+        function initHijriDate() {
+            // Simulasi tanggal Hijriah
+            const hijriMonths = ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 
+                                'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Sya\'ban', 
+                                'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'];
+            const now = new Date();
+            // Hitungan sederhana, bukan akurat
+            const hijriYear = 1446; 
+            const hijriMonth = now.getMonth();
+            const hijriDay = now.getDate();
+            
+            document.getElementById('hijriDate').textContent = 
+                `${hijriDay} ${hijriMonths[hijriMonth]} ${hijriYear} H`;
+        }
+
+        // ==================== RENDER FUNCTIONS ====================
+        function renderSemua() {
+            console.log('🔄 Merender ulang...');
+            renderPendiri();
+            renderAnak();
+            renderKeluargaLain();
+            renderGallery();
+            updateStats();
+        }
+
+        function renderPendiri() {
+            const container = document.getElementById('pendiriContainer');
+            if (!keluargaData.pendiri) return;
+            
+            const pendiri = keluargaData.anggota[keluargaData.pendiri.id] || keluargaData.pendiri;
+            
+            let html = `
+                <div class="parent-item male" onclick="lihatDetail('${pendiri.id}')">
+                    <div class="small-photo" style="${pendiri.foto ? `background-image:url('${pendiri.foto}')` : ''}">
+                        ${pendiri.foto ? '' : getInitials(pendiri.nama)}
+                    </div>
+                    <div class="name">${pendiri.nama}</div>
+                    <div>Suami</div>
+                </div>
+            `;
+
+            if (pendiri.pasangan && pendiri.pasangan.length > 0) {
+                const istriId = pendiri.pasangan[0];
+                const istri = keluargaData.anggota[istriId];
+                if (istri) {
+                    html += `
+                        <div class="parent-item female" onclick="lihatDetail('${istriId}')">
+                            <div class="small-photo" style="${istri.foto ? `background-image:url('${istri.foto}')` : ''}">
+                                ${istri.foto ? '' : getInitials(istri.nama)}
+                            </div>
+                            <div class="name">${istri.nama}</div>
+                            <div>Istri</div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderAnak() {
+            const container = document.getElementById('anakContainer');
+            container.innerHTML = '';
+
+            if (!keluargaData.pendiri || !keluargaData.pendiri.anak) return;
+
+            if (keluargaData.pendiri.anak.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:gray;">Belum ada anak</p>';
+                return;
+            }
+
+            keluargaData.pendiri.anak.forEach((anakId, index) => {
+                const anak = keluargaData.anggota[anakId];
+                if (!anak) return;
+
+                container.innerHTML += `
+                    <div class="child-item" onclick="lihatDetail('${anak.id}')">
+                        <div class="child-number">${index + 1}</div>
+                        <div class="child-info">
+                            <div class="child-name">${anak.nama}</div>
+                            <div style="font-size:0.8rem; color:gray;">${anak.pekerjaan || ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderKeluargaLain() {
+            const container = document.getElementById('keluargaLainnya');
+            container.innerHTML = '';
+
+            if (!keluargaData.pendiri || !keluargaData.pendiri.anak) return;
+
+            keluargaData.pendiri.anak.forEach(anakId => {
+                const anak = keluargaData.anggota[anakId];
+                if (!anak || !anak.pasangan || anak.pasangan.length === 0) return;
+
+                const pasanganId = anak.pasangan[0];
+                const pasangan = keluargaData.anggota[pasanganId];
+                if (!pasangan) return;
+
+                const anakKandung = (anak.anak || [])
+                    .map(id => keluargaData.anggota[id])
+                    .filter(a => a);
+
+                let cardHtml = `
+                    <div class="family-card">
+                        <div class="family-header">
+                            <h2>👪 Keluarga ${anak.nama}</h2>
+                            <span class="badge">Generasi 2</span>
+                        </div>
+                        
+                        <div class="couple-container">
+                            <div class="parent-item ${anak.gender === 'L' ? 'male' : 'female'}" onclick="lihatDetail('${anak.id}')">
+                                <div class="small-photo" style="${anak.foto ? `background-image:url('${anak.foto}')` : ''}">
+                                    ${anak.foto ? '' : getInitials(anak.nama)}
+                                </div>
+                                <div class="name">${anak.nama}</div>
+                            </div>
+                            <div class="parent-item ${pasangan.gender === 'L' ? 'male' : 'female'}" onclick="lihatDetail('${pasangan.id}')">
+                                <div class="small-photo" style="${pasangan.foto ? `background-image:url('${pasangan.foto}')` : ''}">
+                                    ${pasangan.foto ? '' : getInitials(pasangan.nama)}
+                                </div>
+                                <div class="name">${pasangan.nama}</div>
+                            </div>
+                        </div>
+                `;
+
+                if (anakKandung.length > 0) {
+                    cardHtml += `<div class="children-list"><h3>👶 Anak</h3>`;
+                    anakKandung.forEach((cucu, idx) => {
+                        cardHtml += `
+                            <div class="child-item" onclick="lihatDetail('${cucu.id}')">
+                                <div class="child-number">${idx + 1}</div>
+                                <div class="child-info">
+                                    <div class="child-name">${cucu.nama}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    cardHtml += `</div>`;
+                } else {
+                    cardHtml += `<p style="text-align:center; color:gray; margin:1rem 0;">Belum memiliki anak</p>`;
+                }
+
+                cardHtml += `
+                    <button class="btn btn-primary" onclick="tambahAnak('${anak.id}')" style="margin-top:0.5rem; width:100%;">
+                        <i class="fas fa-plus"></i> Tambah Anak
+                    </button>
+                </div>`;
+
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('photoGallery');
+            gallery.innerHTML = '';
+
+            const fotoAnggota = Object.values(keluargaData.anggota || {}).filter(a => a && a.foto);
+            
+            if (fotoAnggota.length === 0) {
+                gallery.innerHTML = '<p style="text-align:center; color:gray;">Belum ada foto</p>';
+                return;
+            }
+
+            fotoAnggota.forEach(anggota => {
+                gallery.innerHTML += `
+                    <div class="photo-item" onclick="lihatDetail('${anggota.id}')">
+                        <div class="photo-placeholder" style="background-image:url('${anggota.foto}')"></div>
+                        <span>${anggota.nama}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function updateStats() {
+            const total = Object.keys(keluargaData.anggota || {}).length;
+            document.getElementById('totalAnggota').textContent = total;
+
+            let maxGen = 1;
+            function hitungGenerasi(id, gen = 1) {
+                const anggota = keluargaData.anggota[id];
+                if (!anggota) return;
+                maxGen = Math.max(maxGen, gen);
+                if (anggota.anak) {
+                    anggota.anak.forEach(anakId => hitungGenerasi(anakId, gen + 1));
+                }
+            }
+            
+            if (keluargaData.pendiri) {
+                hitungGenerasi(keluargaData.pendiri.id);
+            }
+            document.getElementById('totalGenerasi').textContent = maxGen;
+
+            let keluargaCount = 0;
+            for (let id in keluargaData.anggota) {
+                if (keluargaData.anggota[id].pasangan?.length > 0) keluargaCount++;
+            }
+            document.getElementById('totalKeluarga').textContent = keluargaCount;
+
+            let hidup = 0;
+            for (let id in keluargaData.anggota) {
+                if (keluargaData.anggota[id].status !== 'meninggal') hidup++;
+            }
+            document.getElementById('totalHidup').textContent = hidup;
+        }
+
+        // ==================== CRUD OPERATIONS ====================
+        function tambahAnggotaBaru() {
+            resetForm();
+            document.getElementById('modalTitle').textContent = 'Tambah Anggota Baru';
+            document.getElementById('formModal').style.display = 'block';
+            setTimeout(() => initMap(-6.2088, 106.8456), 300);
+        }
+
+        function tambahAnak(parentId) {
+            resetForm();
+            currentParentId = parentId;
+            document.getElementById('modalTitle').textContent = 'Tambah Anak';
+            document.getElementById('formModal').style.display = 'block';
+            setTimeout(() => initMap(-6.2088, 106.8456), 300);
+        }
+
+        function resetForm() {
+            document.getElementById('familyForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('parentId').value = '';
+            document.getElementById('photoPreview').innerHTML = '<span>📷</span>';
+            document.getElementById('meninggalGroup').style.display = 'none';
+            document.getElementById('pasanganContainer').innerHTML = '';
+            document.getElementById('hapusBtn').style.display = 'none';
+            currentEditId = null;
+            currentParentId = null;
+        }
+
+        function tambahPasangan() {
+            const container = document.getElementById('pasanganContainer');
+            const div = document.createElement('div');
+            div.className = 'spouse-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Nama pasangan" class="spouse-name" style="width:100%; margin-bottom:0.25rem;" required>
+                <select class="spouse-status" style="width:100%; margin-bottom:0.25rem;">
+                    <option value="hidup">Masih Hidup</option>
+                    <option value="meninggal">Meninggal</option>
+                </select>
+                <button type="button" onclick="this.parentElement.remove()" style="margin-top:0.25rem;">Hapus</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('photoPreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function simpanData(event) {
+            event.preventDefault();
+
+            const nama = document.getElementById('nama').value.trim().toUpperCase();
+            if (!nama) {
+                showToast('Nama harus diisi', 'error');
+                return;
+            }
+
+            const gender = document.getElementById('gender').value;
+            if (!gender) {
+                showToast('Jenis kelamin harus dipilih', 'error');
+                return;
+            }
+
+            // Buat ID unik
+            let id;
+            if (currentEditId) {
+                id = currentEditId;
+            } else {
+                id = 'anggota_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // Data anggota
+            const anggota = {
+                id: id,
+                nama: nama,
+                gender: gender,
+                status: document.getElementById('status').value,
+                tahunMeninggal: document.getElementById('tahunMeninggal').value || null,
+                keteranganMeninggal: document.getElementById('keteranganMeninggal').value || null,
+                tempatLahir: document.getElementById('tempatLahir').value || null,
+                tanggalLahir: document.getElementById('tanggalLahir').value || null,
+                alamat: document.getElementById('alamat').value || null,
+                lat: document.getElementById('mapLat').value || '-6.2088',
+                lng: document.getElementById('mapLng').value || '106.8456',
+                telepon: document.getElementById('telepon').value || null,
+                pendidikan: document.getElementById('pendidikan').value || null,
+                pekerjaan: document.getElementById('pekerjaan').value || null,
+                keterangan: document.getElementById('keterangan').value || null,
+                pasangan: [],
+                anak: []
+            };
+
+            // Proses pasangan
+            const spouseInputs = document.querySelectorAll('.spouse-row');
+            spouseInputs.forEach((row, index) => {
+                const spouseName = row.querySelector('.spouse-name')?.value.trim().toUpperCase();
+                if (spouseName) {
+                    const spouseStatus = row.querySelector('.spouse-status')?.value || 'hidup';
+                    const spouseId = 'pasangan_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substr(2, 5);
+                    
+                    // Buat data pasangan
+                    keluargaData.anggota[spouseId] = {
+                        id: spouseId,
+                        nama: spouseName,
+                        gender: gender === 'L' ? 'P' : 'L',
+                        status: spouseStatus,
+                        pasangan: [id],
+                        anak: []
+                    };
+                    
+                    anggota.pasangan.push(spouseId);
+                }
+            });
+
+            // Proses foto
+            const photoFile = document.getElementById('photoInput').files[0];
+            
+            const prosesSimpan = (fotoData) => {
+                if (fotoData) anggota.foto = fotoData;
+                else if (currentEditId && keluargaData.anggota[currentEditId]?.foto) {
+                    anggota.foto = keluargaData.anggota[currentEditId].foto;
+                }
+
+                // Simpan anggota
+                keluargaData.anggota[id] = anggota;
+
+                // Update relasi dengan parent
+                if (currentParentId) {
+                    if (!keluargaData.anggota[currentParentId].anak) {
+                        keluargaData.anggota[currentParentId].anak = [];
+                    }
+                    if (!keluargaData.anggota[currentParentId].anak.includes(id)) {
+                        keluargaData.anggota[currentParentId].anak.push(id);
+                    }
+
+                    // Update pendiri jika parent adalah pendiri
+                    if (keluargaData.pendiri && currentParentId === keluargaData.pendiri.id) {
+                        if (!keluargaData.pendiri.anak.includes(id)) {
+                            keluargaData.pendiri.anak.push(id);
+                        }
+                    }
+                }
+
+                // Simpan ke Firebase
+                simpanKeFirebase()
+                    .then(() => {
+                        showToast('Data berhasil disimpan');
+                        tutupModal();
+                        renderSemua();
+                    })
+                    .catch(error => {
+                        showToast('Gagal: ' + error, 'error');
+                    });
+            };
+
+            if (photoFile) {
+                const reader = new FileReader();
+                reader.onload = e => prosesSimpan(e.target.result);
+                reader.readAsDataURL(photoFile);
+            } else {
+                prosesSimpan(null);
+            }
+        }
+
+        function editAnggota(id) {
+            const anggota = keluargaData.anggota[id];
+            if (!anggota) return;
+
+            currentEditId = id;
+            document.getElementById('modalTitle').textContent = 'Edit ' + anggota.nama;
+            document.getElementById('editId').value = id;
+            document.getElementById('nama').value = anggota.nama;
+            document.getElementById('gender').value = anggota.gender || '';
+            document.getElementById('status').value = anggota.status || 'hidup';
+            document.getElementById('tahunMeninggal').value = anggota.tahunMeninggal || '';
+            document.getElementById('keteranganMeninggal').value = anggota.keteranganMeninggal || '';
+            document.getElementById('tempatLahir').value = anggota.tempatLahir || '';
+            document.getElementById('tanggalLahir').value = anggota.tanggalLahir || '';
+            document.getElementById('alamat').value = anggota.alamat || '';
+            document.getElementById('mapLat').value = anggota.lat || '-6.2088';
+            document.getElementById('mapLng').value = anggota.lng || '106.8456';
+            document.getElementById('telepon').value = anggota.telepon || '';
+            document.getElementById('pendidikan').value = anggota.pendidikan || '';
+            document.getElementById('pekerjaan').value = anggota.pekerjaan || '';
+            document.getElementById('keterangan').value = anggota.keterangan || '';
+
+            if (anggota.foto) {
+                document.getElementById('photoPreview').innerHTML = `<img src="${anggota.foto}" alt="Preview">`;
+            } else {
+                document.getElementById('photoPreview').innerHTML = '<span>📷</span>';
+            }
+
+            toggleStatusMeninggal();
+
+            // Tampilkan pasangan yang ada
+            document.getElementById('pasanganContainer').innerHTML = '';
+            if (anggota.pasangan && anggota.pasangan.length > 0) {
+                anggota.pasangan.forEach(pasanganId => {
+                    const pasangan = keluargaData.anggota[pasanganId];
+                    if (pasangan) {
+                        const div = document.createElement('div');
+                        div.className = 'spouse-row';
+                        div.innerHTML = `
+                            <input type="text" value="${pasangan.nama}" readonly style="width:100%; background:var(--gray-100);">
+                            <div style="font-size:0.8rem; margin-top:0.25rem;">${pasangan.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Hidup'}</div>
+                        `;
+                        document.getElementById('pasanganContainer').appendChild(div);
+                    }
+                });
+            }
+
+            document.getElementById('hapusBtn').style.display = 'block';
+            document.getElementById('formModal').style.display = 'block';
+            
+            setTimeout(() => {
+                initMap(parseFloat(anggota.lat) || -6.2088, parseFloat(anggota.lng) || 106.8456);
+            }, 300);
+        }
+
+        function hapusAnggota() {
+            if (!currentEditId) return;
+            
+            if (currentEditId === "ALI_IMRON" || currentEditId === "ASMAH") {
+                showToast('Tidak dapat menghapus pendiri', 'error');
+                return;
+            }
+
+            if (!confirm('Apakah Anda yakin ingin menghapus anggota ini?')) return;
+
+            // Hapus dari semua relasi
+            for (let id in keluargaData.anggota) {
+                const anggota = keluargaData.anggota[id];
+                if (anggota.anak) {
+                    anggota.anak = anggota.anak.filter(anakId => anakId !== currentEditId);
+                }
+                if (anggota.pasangan) {
+                    anggota.pasangan = anggota.pasangan.filter(pId => pId !== currentEditId);
+                }
+            }
+
+            // Hapus dari pendiri
+            if (keluargaData.pendiri) {
+                if (keluargaData.pendiri.anak) {
+                    keluargaData.pendiri.anak = keluargaData.pendiri.anak.filter(id => id !== currentEditId);
+                }
+                if (keluargaData.pendiri.pasangan) {
+                    keluargaData.pendiri.pasangan = keluargaData.pendiri.pasangan.filter(id => id !== currentEditId);
+                }
+            }
+
+            // Hapus anggota
+            delete keluargaData.anggota[currentEditId];
+
+            simpanKeFirebase()
+                .then(() => {
+                    showToast('Data berhasil dihapus');
+                    tutupModal();
+                    renderSemua();
+                })
+                .catch(error => {
+                    showToast('Gagal: ' + error, 'error');
+                });
+        }
+
+        function lihatDetail(id) {
+            const anggota = keluargaData.anggota[id];
+            if (!anggota) return;
+
+            let html = `
+                <div style="text-align:center; margin-bottom:1rem;">
+                    <div style="width:120px; height:120px; border-radius:50%; margin:0 auto; background:linear-gradient(135deg, var(--primary), var(--secondary)); background-size:cover; background-position:center; ${anggota.foto ? `background-image:url('${anggota.foto}')` : ''}">
+                        ${!anggota.foto ? `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:2rem;">${getInitials(anggota.nama)}</div>` : ''}
+                    </div>
+                    <h3 style="margin-top:0.5rem;">${anggota.nama}</h3>
+                    <div>
+                        <span class="badge" style="background:${anggota.gender === 'L' ? 'var(--primary)' : 'var(--accent)'}">${anggota.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</span>
+                        <span class="badge" style="background:${anggota.status === 'meninggal' ? 'var(--danger)' : 'var(--success)'}">${anggota.status === 'meninggal' ? 'Meninggal' : 'Masih Hidup'}</span>
+                    </div>
+                </div>
+                <div style="border-top:1px solid #eee; padding-top:1rem;">
+            `;
+
+            if (anggota.tempatLahir || anggota.tanggalLahir) {
+                html += `<p><i class="fas fa-birthday-cake" style="width:20px;"></i> Lahir: ${anggota.tempatLahir || ''} ${anggota.tanggalLahir || ''}</p>`;
+            }
+            if (anggota.alamat) html += `<p><i class="fas fa-map-marker-alt" style="width:20px;"></i> ${anggota.alamat}</p>`;
+            if (anggota.telepon) html += `<p><i class="fas fa-phone" style="width:20px;"></i> ${anggota.telepon}</p>`;
+            if (anggota.pendidikan) html += `<p><i class="fas fa-graduation-cap" style="width:20px;"></i> ${anggota.pendidikan}</p>`;
+            if (anggota.pekerjaan) html += `<p><i class="fas fa-briefcase" style="width:20px;"></i> ${anggota.pekerjaan}</p>`;
+            
+            if (anggota.pasangan?.length > 0) {
+                html += `<p><i class="fas fa-heart" style="width:20px; color:red;"></i> Pasangan: `;
+                anggota.pasangan.forEach((pId, i) => {
+                    const p = keluargaData.anggota[pId];
+                    if (p) html += `${i > 0 ? ', ' : ''}${p.nama}`;
+                });
+                html += `</p>`;
+            }
+
+            if (anggota.anak?.length > 0) {
+                html += `<p><i class="fas fa-child" style="width:20px;"></i> Anak: `;
+                anggota.anak.forEach((aId, i) => {
+                    const a = keluargaData.anggota[aId];
+                    if (a) html += `${i > 0 ? ', ' : ''}${a.nama}`;
+                });
+                html += `</p>`;
+            }
+
+            if (anggota.status === 'meninggal' && anggota.tahunMeninggal) {
+                html += `<p><i class="fas fa-mosque" style="width:20px;"></i> Meninggal: ${anggota.tahunMeninggal} ${anggota.keteranganMeninggal || ''}</p>`;
+            }
+
+            html += `
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <button class="btn btn-primary" onclick="editAnggota('${id}'); tutupDetailModal();" style="flex:1;">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn" onclick="tutupDetailModal()" style="flex:1;">
+                        <i class="fas fa-times"></i> Tutup
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('detailContent').innerHTML = html;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function tutupModal() {
+            document.getElementById('formModal').style.display = 'none';
+            if (map) {
+                map.remove();
+                map = null;
+            }
+        }
+
+        function tutupDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // ==================== MAP FUNCTIONS ====================
+        function initMap(lat, lng) {
+            const mapElement = document.getElementById('mapPreview');
+            if (!mapElement) return;
+
+            if (map) {
+                map.remove();
+            }
+
+            map = L.map('mapPreview').setView([lat, lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            
+            marker.on('dragend', function(e) {
+                const pos = e.target.getLatLng();
+                document.getElementById('mapLat').value = pos.lat.toFixed(6);
+                document.getElementById('mapLng').value = pos.lng.toFixed(6);
+            });
+
+            map.on('click', function(e) {
+                const pos = e.latlng;
+                marker.setLatLng(pos);
+                document.getElementById('mapLat').value = pos.lat.toFixed(6);
+                document.getElementById('mapLng').value = pos.lng.toFixed(6);
+            });
+        }
+
+        function cariLokasi() {
+            const alamat = document.getElementById('alamat').value;
+            if (!alamat) {
+                showToast('Masukkan alamat dulu', 'error');
+                return;
+            }
+
+            showToast('Mencari lokasi...', 'warning');
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(alamat)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data[0]) {
+                        const lat = parseFloat(data[0].lat);
+                        const lng = parseFloat(data[0].lon);
+                        document.getElementById('mapLat').value = lat.toFixed(6);
+                        document.getElementById('mapLng').value = lng.toFixed(6);
+                        
+                        if (map && marker) {
+                            map.setView([lat, lng], 15);
+                            marker.setLatLng([lat, lng]);
+                        }
+                        showToast('Lokasi ditemukan');
+                    } else {
+                        showToast('Lokasi tidak ditemukan', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Gagal mencari lokasi', 'error');
+                });
+        }
+
+        // ==================== DIAGRAM FUNCTIONS ====================
+        function previewDiagram() {
+            let html = '<div style="text-align:center;">';
+            html += '<h3 style="margin-bottom:1rem;">🌳 Diagram Keluarga BANI ALI IMRON</h3>';
+            html += '<div style="text-align:left;">';
+            
+            function renderNode(id, level = 0) {
+                const anggota = keluargaData.anggota[id];
+                if (!anggota) return '';
+                
+                let result = '';
+                const indent = '&nbsp;'.repeat(level * 4);
+                
+                result += `<div style="margin:0.25rem 0;">${indent}├─ <strong>${anggota.nama}</strong>`;
+                
+                if (anggota.pasangan && anggota.pasangan.length > 0) {
+                    const pasangan = keluargaData.anggota[anggota.pasangan[0]];
+                    if (pasangan) {
+                        result += ` ❤️ ${pasangan.nama}`;
+                    }
+                }
+                
+                if (anggota.status === 'meninggal') {
+                    result += ' ✝️';
+                }
+                
+                result += '</div>';
+                
+                if (anggota.anak && anggota.anak.length > 0) {
+                    anggota.anak.forEach(anakId => {
+                        result += renderNode(anakId, level + 1);
+                    });
+                }
+                
+                return result;
+            }
+            
+            if (keluargaData.pendiri) {
+                html += renderNode(keluargaData.pendiri.id);
+            }
+            
+            html += '</div></div>';
+            document.getElementById('diagramContent').innerHTML = html;
+            document.getElementById('diagramModal').style.display = 'block';
+        }
+
+        function tutupDiagram() {
+            document.getElementById('diagramModal').style.display = 'none';
+        }
+
+        function downloadDiagram() {
+            const content = document.getElementById('diagramContent');
+            html2canvas(content).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'family-tree.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function getInitials(nama) {
+            if (!nama) return '?';
+            return nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function toggleStatusMeninggal() {
+            const status = document.getElementById('status').value;
+            document.getElementById('meninggalGroup').style.display = status === 'meninggal' ? 'block' : 'none';
+        }
+
+        function searchFamily() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!keyword) {
+                resetSearch();
+                return;
+            }
+
+            // Cari di semua kartu keluarga
+            document.querySelectorAll('.family-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(keyword) ? '' : 'none';
+            });
+            
+            // Cari di galeri
+            const photos = document.querySelectorAll('.photo-item');
+            photos.forEach(photo => {
+                const text = photo.textContent.toLowerCase();
+                photo.style.display = text.includes(keyword) ? '' : 'none';
+            });
+
+            showToast(`Mencari: ${keyword}`, 'warning');
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.family-card').forEach(card => card.style.display = '');
+            document.querySelectorAll('.photo-item').forEach(photo => photo.style.display = '');
+        }
+
+        function resetData() {
+            if (!confirm('Reset semua data? Data yang ada akan hilang.')) return;
+            
+            keluargaData = JSON.parse(JSON.stringify(DATA_DEFAULT));
+            
+            simpanKeFirebase()
+                .then(() => {
+                    renderSemua();
+                    showToast('Data direset ke default');
+                })
+                .catch(error => {
+                    showToast('Gagal reset: ' + error, 'error');
+                });
+        }
+
+        function openBulkUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.multiple = true;
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+
+                let processed = 0;
+                let foundCount = 0;
+                
+                showToast(`Mengupload ${files.length} foto...`, 'warning');
+
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        // Ambil nama file tanpa ekstensi
+                        const fileName = file.name.split('.')[0].toUpperCase();
+                        
+                        // Cari anggota dengan nama mirip
+                        let found = false;
+                        for (let id in keluargaData.anggota) {
+                            if (keluargaData.anggota[id].nama.includes(fileName) || 
+                                fileName.includes(keluargaData.anggota[id].nama)) {
+                                keluargaData.anggota[id].foto = ev.target.result;
+                                found = true;
+                                foundCount++;
+                                break;
+                            }
+                        }
+                        
+                        if (!found) {
+                            // Buat anggota baru jika tidak ditemukan
+                            const newId = 'foto_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                            keluargaData.anggota[newId] = {
+                                id: newId,
+                                nama: fileName,
+                                foto: ev.target.result,
+                                status: 'hidup'
+                            };
+                        }
+                        
+                        processed++;
+                        if (processed === files.length) {
+                            simpanKeFirebase()
+                                .then(() => {
+                                    renderGallery();
+                                    showToast(`${foundCount} foto cocok, ${files.length - foundCount} baru`);
+                                })
+                                .catch((error) => {
+                                    showToast('Gagal: ' + error.message, 'error');
+                                });
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+            input.click();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            if (type === 'error') toast.classList.add('error');
+            if (type === 'warning') toast.classList.add('warning');
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(keluargaData, null, 2);
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bani-ali-imron-data-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Data berhasil diekspor');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(ev) {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        
+                        // Validasi struktur data
+                        if (!data.anggota || !data.pendiri) {
+                            showToast('Format file tidak valid', 'error');
+                            return;
+                        }
+                        
+                        keluargaData = data;
+                        simpanKeFirebase()
+                            .then(() => {
+                                renderSemua();
+                                showToast('Data berhasil diimport');
+                            })
+                            .catch((error) => {
+                                showToast('Gagal: ' + error.message, 'error');
+                            });
+                    } catch (err) {
+                        showToast('File tidak valid', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    </script>
+</body>
+</html>
