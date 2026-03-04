@@ -299,6 +299,11 @@
             border: none;
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #3a86ff);
+            border: none;
+        }
+
         /* Search Box */
         .search-box {
             background: rgba(255, 255, 255, 0.05);
@@ -382,6 +387,18 @@
             font-weight: 600;
             font-size: 0.9rem;
             box-shadow: var(--shadow-md);
+        }
+
+        .generation-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gray-300);
+            border: 1px solid var(--gray-400);
         }
 
         /* Couple Container */
@@ -540,6 +557,92 @@
             border: 1px solid var(--info);
         }
 
+        /* Spouse Card */
+        .spouse-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .spouse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spouse-header h4 {
+            font-size: 1.2rem;
+            color: var(--islamic);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spouse-detail {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spouse-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid var(--islamic);
+        }
+
+        .spouse-info {
+            flex: 1;
+        }
+
+        .spouse-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .spouse-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            color: var(--gray-300);
+            font-size: 0.9rem;
+        }
+
+        .relationship-badge {
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .relationship-badge.menikah {
+            background: rgba(46, 125, 50, 0.2);
+            color: var(--islamic);
+            border: 1px solid var(--islamic);
+        }
+
+        .relationship-badge.cerai-hidup {
+            background: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .relationship-badge.cerai-meninggal {
+            background: rgba(46, 125, 50, 0.2);
+            color: var(--islamic);
+            border: 1px solid var(--islamic);
+        }
+
         /* Children List */
         .children-list {
             background: rgba(0, 0, 0, 0.2);
@@ -616,6 +719,64 @@
             align-items: center;
             gap: 0.5rem;
             margin-top: 0.25rem;
+        }
+
+        .child-relation {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gray-300);
+        }
+
+        .child-relation.menantu {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .child-relation.cucu {
+            background: rgba(46, 125, 50, 0.2);
+            color: var(--islamic);
+            border: 1px solid var(--islamic);
+        }
+
+        .child-relation.cicit {
+            background: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .child-relation.anak-bawaan {
+            background: rgba(247, 37, 133, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        /* Add Child Button for Each Spouse */
+        .spouse-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .btn-spouse {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-spouse:hover {
+            background: var(--islamic);
+            transform: translateY(-2px);
         }
 
         /* Gallery */
@@ -1567,7 +1728,7 @@
             <div class="children-list">
                 <h3><i class="fas fa-baby"></i> Anak-anak (Generasi 2)</h3>
                 <div id="anakContainer"></div>
-                <button class="btn btn-primary" onclick="tambahAnak('ALI_IMRON')" style="margin-top:1rem; width:100%;">
+                <button class="btn btn-primary" onclick="tambahAnak('ALI_IMRON', null)" style="margin-top:1rem; width:100%;">
                     <i class="fas fa-plus-circle"></i> Tambah Anak
                 </button>
             </div>
@@ -1597,6 +1758,8 @@
             <form id="familyForm" onsubmit="simpanData(event)">
                 <input type="hidden" id="editId">
                 <input type="hidden" id="parentId">
+                <input type="hidden" id="spouseId">
+                <input type="hidden" id="childType">
                 
                 <!-- Photo Upload -->
                 <div class="photo-preview-container">
@@ -1672,6 +1835,26 @@
                         </div>
                     </div>
                     <input type="hidden" id="statusPernikahan" value="menikah">
+                </div>
+
+                <!-- Hubungan dengan Pasangan -->
+                <div class="form-group" id="relationshipGroup" style="display:none;">
+                    <label><i class="fas fa-link"></i> Hubungan dengan Pasangan</label>
+                    <select id="hubunganPasangan">
+                        <option value="menikah">🤲 Menikah</option>
+                        <option value="cerai-hidup">💔 Cerai Hidup</option>
+                        <option value="cerai-meninggal">🕋 Cerai Meninggal</option>
+                    </select>
+                </div>
+
+                <!-- Tipe Anak -->
+                <div class="form-group" id="childTypeGroup" style="display:none;">
+                    <label><i class="fas fa-baby"></i> Tipe Anak</label>
+                    <select id="tipeAnak">
+                        <option value="kandung">👶 Anak Kandung</option>
+                        <option value="bawaan">👨‍👩‍👧 Anak Bawaan (dari pasangan lain)</option>
+                        <option value="angkat">🤲 Anak Angkat</option>
+                    </select>
                 </div>
 
                 <!-- Tempat & Tanggal Lahir -->
@@ -1857,6 +2040,8 @@
         let keluargaData = JSON.parse(JSON.stringify(DATA_DEFAULT));
         let currentEditId = null;
         let currentParentId = null;
+        let currentSpouseId = null;
+        let currentChildType = null;
         let isSaving = false;
         let isLoading = true;
         let qrCodeForm = null;
@@ -2134,6 +2319,85 @@
             }
         }
 
+        // ==================== FUNGSI MENENTUKAN HUBUNGAN KELUARGA ====================
+        function getHubunganKeluarga(anggotaId, dariId) {
+            const anggota = keluargaData.anggota[anggotaId];
+            const dari = keluargaData.anggota[dariId];
+            
+            if (!anggota || !dari) return null;
+            
+            // Cek apakah anggota adalah anak dari dari
+            if (dari.anak && dari.anak.includes(anggotaId)) {
+                return 'anak';
+            }
+            
+            // Cek apakah anggota adalah pasangan dari dari
+            if (dari.pasangan && dari.pasangan.includes(anggotaId)) {
+                return 'pasangan';
+            }
+            
+            // Cek apakah anggota adalah cucu (anak dari anak)
+            if (dari.anak) {
+                for (let anakId of dari.anak) {
+                    const anak = keluargaData.anggota[anakId];
+                    if (anak && anak.anak && anak.anak.includes(anggotaId)) {
+                        return 'cucu';
+                    }
+                }
+            }
+            
+            // Cek apakah anggota adalah cicit (cucu dari anak)
+            if (dari.anak) {
+                for (let anakId of dari.anak) {
+                    const anak = keluargaData.anggota[anakId];
+                    if (anak && anak.anak) {
+                        for (let cucuId of anak.anak) {
+                            const cucu = keluargaData.anggota[cucuId];
+                            if (cucu && cucu.anak && cucu.anak.includes(anggotaId)) {
+                                return 'cicit';
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        function getLabelHubungan(anggotaId, dariId) {
+            const hubungan = getHubunganKeluarga(anggotaId, dariId);
+            if (!hubungan) return '';
+            
+            switch(hubungan) {
+                case 'anak': return 'Anak';
+                case 'pasangan': return 'Pasangan';
+                case 'cucu': return 'Cucu';
+                case 'cicit': return 'Cicit';
+                default: return '';
+            }
+        }
+
+        function getLabelMenantu(anggotaId) {
+            const anggota = keluargaData.anggota[anggotaId];
+            if (!anggota || !anggota.pasangan || anggota.pasangan.length === 0) return '';
+            
+            // Cek apakah anggota memiliki pasangan yang merupakan anak dari seseorang
+            for (let pasanganId of anggota.pasangan) {
+                const pasangan = keluargaData.anggota[pasanganId];
+                if (!pasangan) continue;
+                
+                // Cari orang tua dari pasangan
+                for (let id in keluargaData.anggota) {
+                    const orangTua = keluargaData.anggota[id];
+                    if (orangTua.anak && orangTua.anak.includes(pasanganId)) {
+                        return 'Menantu';
+                    }
+                }
+            }
+            
+            return '';
+        }
+
         // ==================== RENDER FUNCTIONS ====================
         function renderSemua() {
             console.log('🔄 Merender ulang...');
@@ -2197,7 +2461,7 @@
             `;
         }
 
-        function renderChildItem(anak, index) {
+        function renderChildItem(anak, index, parentId) {
             // Ganti icon meninggal dengan icon Islami
             const statusIcon = anak.status === 'meninggal' ? '🕋' : '❤️';
             const fotoStyle = anak.foto ? `background-image:url('${anak.foto}')` : '';
@@ -2212,12 +2476,34 @@
                 }
             }
             
+            // Tentukan label hubungan (cucu, cicit, dll)
+            let hubunganLabel = '';
+            const hubungan = getHubunganKeluarga(anak.id, parentId);
+            switch(hubungan) {
+                case 'anak': hubunganLabel = ''; break;
+                case 'cucu': hubunganLabel = '<span class="child-relation cucu">Cucu</span>'; break;
+                case 'cicit': hubunganLabel = '<span class="child-relation cicit">Cicit</span>'; break;
+                default: hubunganLabel = '';
+            }
+            
+            // Cek apakah anak ini adalah menantu (pasangan dari anak)
+            const isMenantu = getLabelMenantu(anak.id) === 'Menantu';
+            if (isMenantu) {
+                hubunganLabel = '<span class="child-relation menantu">Menantu</span>';
+            }
+            
+            // Cek apakah anak bawaan
+            const isAnakBawaan = anak.tipeAnak === 'bawaan';
+            if (isAnakBawaan) {
+                hubunganLabel = '<span class="child-relation anak-bawaan">Anak Bawaan</span>';
+            }
+            
             return `
                 <div class="child-item" onclick="lihatDetail('${anak.id}')">
                     <div class="child-number">${index + 1}</div>
                     <div class="child-photo" style="${fotoStyle}"></div>
                     <div class="child-info">
-                        <div class="child-name">${anak.nama}</div>
+                        <div class="child-name">${anak.nama} ${hubunganLabel}</div>
                         <div class="child-meta">
                             <span>${statusIcon}</span>
                             ${marriageIcon ? `<span>${marriageIcon}</span>` : ''}
@@ -2242,7 +2528,7 @@
             keluargaData.pendiri.anak.forEach((anakId, index) => {
                 const anak = keluargaData.anggota[anakId];
                 if (!anak) return;
-                container.innerHTML += renderChildItem(anak, index);
+                container.innerHTML += renderChildItem(anak, index, keluargaData.pendiri.id);
             });
         }
 
@@ -2258,44 +2544,104 @@
                 const anak = keluargaData.anggota[anakId];
                 if (!anak || !anak.pasangan || anak.pasangan.length === 0) return;
 
-                const pasanganId = anak.pasangan[0];
-                const pasangan = keluargaData.anggota[pasanganId];
-                if (!pasangan) return;
+                // Tampilkan setiap pasangan secara terpisah dengan tombol tambah anak masing-masing
+                for (let i = 0; i < anak.pasangan.length; i++) {
+                    const pasanganId = anak.pasangan[i];
+                    const pasangan = keluargaData.anggota[pasanganId];
+                    if (!pasangan) continue;
 
-                const anakKandung = (anak.anak || [])
-                    .map(id => keluargaData.anggota[id])
-                    .filter(a => a);
+                    const anakKandung = (anak.anak || [])
+                        .map(id => keluargaData.anggota[id])
+                        .filter(a => a);
 
-                let cardHtml = `
-                    <div class="family-card">
-                        <div class="family-header">
-                            <h2><i class="fas fa-users" style="margin-right:0.5rem;"></i>Keluarga ${anak.nama}</h2>
-                            <span class="badge">Generasi 2</span>
-                        </div>
-                        
-                        <div class="couple-container">
-                            ${renderParentItem(anak, anak.gender === 'L' ? 'Suami' : 'Istri')}
-                            ${renderParentItem(pasangan, pasangan.gender === 'L' ? 'Suami' : 'Istri')}
-                        </div>
-                `;
+                    let cardHtml = `
+                        <div class="family-card">
+                            <div class="family-header">
+                                <h2><i class="fas fa-users" style="margin-right:0.5rem;"></i>Keluarga ${anak.nama} ${i > 0 ? `(Pasangan ke-${i+1})` : ''}</h2>
+                                <span class="badge">Generasi 2</span>
+                            </div>
+                            
+                            <div class="spouse-detail">
+                                <div class="spouse-avatar" style="${anak.foto ? `background-image:url('${anak.foto}')` : `background: linear-gradient(135deg, var(--islamic), var(--islamic-gold)); display:flex; align-items:center; justify-content:center;`}">
+                                    ${!anak.foto ? getInitials(anak.nama) : ''}
+                                </div>
+                                <div class="spouse-info">
+                                    <div class="spouse-name">${anak.nama}</div>
+                                    <div class="spouse-meta">
+                                        <span>${anak.gender === 'L' ? '👨 Laki-laki' : '👩 Perempuan'}</span>
+                                        <span>${anak.status === 'meninggal' ? '🕋 Meninggal' : '❤️ Hidup'}</span>
+                                    </div>
+                                </div>
+                                <div class="spouse-avatar" style="${pasangan.foto ? `background-image:url('${pasangan.foto}')` : `background: linear-gradient(135deg, var(--accent), #ff6b6b); display:flex; align-items:center; justify-content:center;`}">
+                                    ${!pasangan.foto ? getInitials(pasangan.nama) : ''}
+                                </div>
+                                <div class="spouse-info">
+                                    <div class="spouse-name">${pasangan.nama}</div>
+                                    <div class="spouse-meta">
+                                        <span>${pasangan.gender === 'L' ? '👨 Laki-laki' : '👩 Perempuan'}</span>
+                                        <span>${pasangan.status === 'meninggal' ? '🕋 Meninggal' : '❤️ Hidup'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="spouse-actions">
+                                <button class="btn-spouse" onclick="tambahAnak('${anak.id}', '${pasanganId}')">
+                                    <i class="fas fa-plus-circle"></i> Tambah Anak
+                                </button>
+                                <button class="btn-spouse" onclick="tambahAnakBawaan('${anak.id}', '${pasanganId}')">
+                                    <i class="fas fa-child"></i> Tambah Anak Bawaan
+                                </button>
+                            </div>
+                    `;
 
-                if (anakKandung.length > 0) {
-                    cardHtml += `<div class="children-list"><h3><i class="fas fa-baby"></i> Anak</h3>`;
-                    anakKandung.forEach((cucu, idx) => {
-                        cardHtml += renderChildItem(cucu, idx);
+                    // Filter anak berdasarkan pasangan
+                    const anakPasanganIni = anakKandung.filter(a => {
+                        // Cek apakah anak ini terdaftar sebagai anak bersama pasangan ini
+                        return anak.pasanganDetails && 
+                               anak.pasanganDetails[pasanganId] && 
+                               anak.pasanganDetails[pasanganId].anakBersama && 
+                               anak.pasanganDetails[pasanganId].anakBersama.includes(a.id);
                     });
+
+                    if (anakPasanganIni.length > 0) {
+                        cardHtml += `<div class="children-list"><h3><i class="fas fa-baby"></i> Anak Bersama</h3>`;
+                        anakPasanganIni.forEach((cucu, idx) => {
+                            cardHtml += renderChildItem(cucu, idx, anak.id);
+                        });
+                        cardHtml += `</div>`;
+                    }
+
+                    // Tampilkan anak bawaan jika ada
+                    if (anak.pasanganDetails && 
+                        anak.pasanganDetails[pasanganId] && 
+                        anak.pasanganDetails[pasanganId].anakBawaan && 
+                        anak.pasanganDetails[pasanganId].anakBawaan.length > 0) {
+                        
+                        const anakBawaan = anak.pasanganDetails[pasanganId].anakBawaan
+                            .map(id => keluargaData.anggota[id])
+                            .filter(a => a);
+                        
+                        if (anakBawaan.length > 0) {
+                            cardHtml += `<div class="children-list"><h3><i class="fas fa-child"></i> Anak Bawaan</h3>`;
+                            anakBawaan.forEach((cucu, idx) => {
+                                cardHtml += renderChildItem(cucu, idx, anak.id);
+                            });
+                            cardHtml += `</div>`;
+                        }
+                    }
+
+                    if (anakPasanganIni.length === 0 && 
+                        (!anak.pasanganDetails || 
+                         !anak.pasanganDetails[pasanganId] || 
+                         !anak.pasanganDetails[pasanganId].anakBawaan || 
+                         anak.pasanganDetails[pasanganId].anakBawaan.length === 0)) {
+                        cardHtml += `<p style="text-align:center; color:var(--gray-400); padding:2rem;">Belum memiliki anak</p>`;
+                    }
+
                     cardHtml += `</div>`;
-                } else {
-                    cardHtml += `<p style="text-align:center; color:var(--gray-400); padding:2rem;">Belum memiliki anak</p>`;
+
+                    container.innerHTML += cardHtml;
                 }
-
-                cardHtml += `
-                    <button class="btn btn-primary" onclick="tambahAnak('${anak.id}')" style="margin-top:1rem; width:100%;">
-                        <i class="fas fa-plus-circle"></i> Tambah Anak
-                    </button>
-                </div>`;
-
-                container.innerHTML += cardHtml;
             });
         }
 
@@ -2374,10 +2720,35 @@
             pilihStatusPernikahan('menikah');
         }
 
-        function tambahAnak(parentId) {
+        function tambahAnak(parentId, spouseId) {
             resetForm();
             currentParentId = parentId;
-            document.getElementById('modalTitle').textContent = 'Tambah Anak';
+            currentSpouseId = spouseId;
+            currentChildType = 'kandung';
+            document.getElementById('modalTitle').textContent = 'Tambah Anak Kandung';
+            document.getElementById('childTypeGroup').style.display = 'block';
+            document.getElementById('tipeAnak').value = 'kandung';
+            document.getElementById('formModal').style.display = 'block';
+            pilihStatusPernikahan('menikah');
+        }
+
+        function tambahAnakBawaan(parentId, spouseId) {
+            resetForm();
+            currentParentId = parentId;
+            currentSpouseId = spouseId;
+            currentChildType = 'bawaan';
+            document.getElementById('modalTitle').textContent = 'Tambah Anak Bawaan';
+            document.getElementById('childTypeGroup').style.display = 'block';
+            document.getElementById('tipeAnak').value = 'bawaan';
+            document.getElementById('formModal').style.display = 'block';
+            pilihStatusPernikahan('menikah');
+        }
+
+        function tambahMenantu(parentId, spouseId) {
+            resetForm();
+            currentParentId = parentId;
+            currentSpouseId = spouseId;
+            document.getElementById('modalTitle').textContent = 'Tambah Menantu';
             document.getElementById('formModal').style.display = 'block';
             pilihStatusPernikahan('menikah');
         }
@@ -2392,6 +2763,9 @@
             const parentId = document.getElementById('parentId');
             if (parentId) parentId.value = '';
             
+            const spouseId = document.getElementById('spouseId');
+            if (spouseId) spouseId.value = '';
+            
             const photoPreview = document.getElementById('photoPreview');
             if (photoPreview) {
                 photoPreview.innerHTML = '<span>📷</span>';
@@ -2403,6 +2777,12 @@
             
             const pasanganContainer = document.getElementById('pasanganContainer');
             if (pasanganContainer) pasanganContainer.innerHTML = '';
+            
+            const childTypeGroup = document.getElementById('childTypeGroup');
+            if (childTypeGroup) childTypeGroup.style.display = 'none';
+            
+            const relationshipGroup = document.getElementById('relationshipGroup');
+            if (relationshipGroup) relationshipGroup.style.display = 'none';
             
             const hapusBtn = document.getElementById('hapusBtn');
             if (hapusBtn) hapusBtn.style.display = 'none';
@@ -2417,6 +2797,8 @@
             
             currentEditId = null;
             currentParentId = null;
+            currentSpouseId = null;
+            currentChildType = null;
         }
 
         function tambahPasangan() {
@@ -2516,7 +2898,8 @@
                 keterangan: document.getElementById('keterangan')?.value || null,
                 pasangan: [],
                 anak: [],
-                pasanganDetails: {} // Untuk menyimpan detail hubungan dengan pasangan
+                pasanganDetails: {}, // Untuk menyimpan detail hubungan dengan pasangan
+                tipeAnak: currentChildType || document.getElementById('tipeAnak')?.value || 'kandung'
             };
 
             // Proses pasangan hanya jika status pernikahan = menikah
@@ -2560,6 +2943,46 @@
                 });
             }
 
+            // Jika ada parent (tambah anak)
+            if (currentParentId) {
+                const parent = keluargaData.anggota[currentParentId];
+                if (parent) {
+                    if (!parent.anak) parent.anak = [];
+                    parent.anak.push(id);
+                    
+                    // Jika ada spouseId, catat sebagai anak dari pasangan tertentu
+                    if (currentSpouseId) {
+                        if (!parent.pasanganDetails) parent.pasanganDetails = {};
+                        if (!parent.pasanganDetails[currentSpouseId]) {
+                            parent.pasanganDetails[currentSpouseId] = {
+                                status: 'menikah',
+                                anakBersama: [],
+                                anakBawaan: []
+                            };
+                        }
+                        
+                        if (currentChildType === 'bawaan') {
+                            if (!parent.pasanganDetails[currentSpouseId].anakBawaan) {
+                                parent.pasanganDetails[currentSpouseId].anakBawaan = [];
+                            }
+                            parent.pasanganDetails[currentSpouseId].anakBawaan.push(id);
+                        } else {
+                            if (!parent.pasanganDetails[currentSpouseId].anakBersama) {
+                                parent.pasanganDetails[currentSpouseId].anakBersama = [];
+                            }
+                            parent.pasanganDetails[currentSpouseId].anakBersama.push(id);
+                        }
+                    }
+                    
+                    // Update pendiri jika parent adalah pendiri
+                    if (keluargaData.pendiri && currentParentId === keluargaData.pendiri.id) {
+                        if (!keluargaData.pendiri.anak.includes(id)) {
+                            keluargaData.pendiri.anak.push(id);
+                        }
+                    }
+                }
+            }
+
             // Proses foto
             const photoInput = document.getElementById('photoInput');
             const photoFile = photoInput && photoInput.files ? photoInput.files[0] : null;
@@ -2573,23 +2996,6 @@
                 // Simpan anggota
                 if (!keluargaData.anggota) keluargaData.anggota = {};
                 keluargaData.anggota[id] = anggota;
-
-                // Update relasi dengan parent
-                if (currentParentId) {
-                    if (!keluargaData.anggota[currentParentId].anak) {
-                        keluargaData.anggota[currentParentId].anak = [];
-                    }
-                    if (!keluargaData.anggota[currentParentId].anak.includes(id)) {
-                        keluargaData.anggota[currentParentId].anak.push(id);
-                    }
-
-                    // Update pendiri jika parent adalah pendiri
-                    if (keluargaData.pendiri && currentParentId === keluargaData.pendiri.id) {
-                        if (!keluargaData.pendiri.anak.includes(id)) {
-                            keluargaData.pendiri.anak.push(id);
-                        }
-                    }
-                }
 
                 // Simpan ke Firebase
                 simpanKeFirebase()
@@ -2800,6 +3206,11 @@
                         <span class="detail-status-badge" style="background:var(--info)">
                             ${marriageIcon} ${marriageStatusText}
                         </span>
+                        ${anggota.tipeAnak ? `
+                        <span class="detail-status-badge" style="background:var(--warning)">
+                            ${anggota.tipeAnak === 'kandung' ? '👶 Anak Kandung' : anggota.tipeAnak === 'bawaan' ? '👨‍👩‍👧 Anak Bawaan' : '🤲 Anak Angkat'}
+                        </span>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -2942,11 +3353,33 @@
                     const a = keluargaData.anggota[aId];
                     if (a) {
                         const aStatusIcon = a.status === 'meninggal' ? '🕋' : '❤️';
+                        
+                        // Tentukan label hubungan
+                        let hubunganLabel = '';
+                        const hubungan = getHubunganKeluarga(a.id, anggota.id);
+                        switch(hubungan) {
+                            case 'anak': hubunganLabel = 'Anak'; break;
+                            case 'cucu': hubunganLabel = 'Cucu'; break;
+                            case 'cicit': hubunganLabel = 'Cicit'; break;
+                            default: hubunganLabel = '';
+                        }
+                        
+                        // Cek apakah anak ini adalah menantu
+                        const isMenantu = getLabelMenantu(a.id) === 'Menantu';
+                        if (isMenantu) {
+                            hubunganLabel = 'Menantu';
+                        }
+                        
+                        // Cek apakah anak bawaan
+                        if (a.tipeAnak === 'bawaan') {
+                            hubunganLabel = 'Anak Bawaan';
+                        }
+                        
                         html += `
                             <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:var(--radius-lg); cursor:pointer;" onclick="lihatDetail('${a.id}')">
                                 <div style="width:40px; height:40px; border-radius:50%; background:${a.foto ? `url('${a.foto}')` : 'linear-gradient(135deg, var(--islamic), var(--islamic-gold))'}; background-size:cover; background-position:center;"></div>
                                 <div style="flex:1;">
-                                    <div style="font-weight:600;">${index+1}. ${a.nama}</div>
+                                    <div style="font-weight:600;">${index+1}. ${a.nama} ${hubunganLabel ? `<span style="font-size:0.7rem; background:rgba(255,255,255,0.1); padding:0.1rem 0.3rem; border-radius:var(--radius-full); margin-left:0.5rem;">${hubunganLabel}</span>` : ''}</div>
                                     <div style="font-size:0.8rem; color:var(--gray-400);">${aStatusIcon} ${a.pekerjaan || '-'}</div>
                                 </div>
                             </div>
