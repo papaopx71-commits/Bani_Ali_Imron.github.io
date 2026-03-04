@@ -18,6 +18,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -45,6 +47,8 @@
             --gray-600: #475569;
             --gray-700: #334155;
             --gray-800: #1e293b;
+            --islamic: #2e7d32;
+            --islamic-gold: #b8860b;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -58,7 +62,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(145deg, #0b1120 0%, #19223f 100%);
+            background: linear-gradient(145deg, #0b1120 0%, #1a2a3a 100%);
             min-height: 100vh;
             padding: 1rem;
             color: #fff;
@@ -76,7 +80,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(145deg, #0b1120, #19223f);
+            background: linear-gradient(145deg, #0b1120, #1a2a3a);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -89,16 +93,16 @@
         .loading-spinner-large {
             width: 80px;
             height: 80px;
-            border: 5px solid rgba(67, 97, 238, 0.2);
+            border: 5px solid rgba(46, 125, 50, 0.2);
             border-radius: 50%;
-            border-top-color: var(--primary);
-            border-right-color: var(--accent);
+            border-top-color: var(--islamic);
+            border-right-color: var(--islamic-gold);
             animation: spin 1s linear infinite;
         }
 
         .loading-text {
             font-size: 1.2rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 600;
@@ -131,7 +135,7 @@
         }
 
         .clock-item i {
-            color: var(--primary-light);
+            color: var(--islamic);
             font-size: 1.2rem;
         }
 
@@ -149,7 +153,7 @@
             align-items: center;
             gap: 0.75rem;
             z-index: 9999;
-            border-left: 4px solid var(--success);
+            border-left: 4px solid var(--islamic);
             color: var(--dark);
             font-weight: 500;
             animation: slideInRight 0.3s ease;
@@ -177,12 +181,13 @@
             margin-bottom: 2rem;
             color: white;
             box-shadow: var(--shadow-xl);
+            border-left: 5px solid var(--islamic);
         }
 
         .header h1 {
             font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--primary-light));
+            background: linear-gradient(135deg, #fff, var(--islamic));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
@@ -220,19 +225,19 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
+            background: linear-gradient(90deg, var(--islamic), var(--islamic-gold));
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-xl);
-            border-color: rgba(67, 97, 238, 0.3);
+            border-color: rgba(46, 125, 50, 0.3);
         }
 
         .stat-card .number {
             font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--primary-light));
+            background: linear-gradient(135deg, #fff, var(--islamic));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             line-height: 1.2;
@@ -278,12 +283,12 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             border: none;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+            background: linear-gradient(135deg, #1b5e20, #8b6b0b);
         }
 
         .btn-danger {
@@ -319,7 +324,7 @@
         }
 
         .search-box button {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             border: none;
             border-radius: var(--radius-full);
             padding: 0.75rem 1.5rem;
@@ -346,7 +351,7 @@
         }
 
         .family-card:hover {
-            border-color: rgba(67, 97, 238, 0.3);
+            border-color: rgba(46, 125, 50, 0.3);
         }
 
         .family-header {
@@ -361,13 +366,13 @@
         .family-header h2 {
             font-size: 1.8rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, var(--primary-light));
+            background: linear-gradient(135deg, #fff, var(--islamic));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .badge {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             color: white;
             padding: 0.5rem 1.5rem;
             border-radius: var(--radius-full);
@@ -388,12 +393,12 @@
         }
 
         .couple-container::after {
-            content: '💍';
+            content: '🤲';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             padding: 1rem;
             border-radius: 50%;
             font-size: 2rem;
@@ -432,7 +437,7 @@
             height: 4px;
         }
 
-        .parent-item.male::before { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+        .parent-item.male::before { background: linear-gradient(90deg, var(--islamic), var(--islamic-gold)); }
         .parent-item.female::before { background: linear-gradient(90deg, var(--accent), #ff6b6b); }
 
         .parent-item:hover {
@@ -453,7 +458,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -468,15 +473,15 @@
         }
 
         .photo-frame.has-photo {
-            border: 4px solid var(--success);
+            border: 4px solid var(--islamic);
         }
 
         .status-badge {
             position: absolute;
             bottom: 5px;
             right: 5px;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             background: var(--success);
             border: 3px solid white;
@@ -484,12 +489,12 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             box-shadow: var(--shadow-md);
         }
 
         .status-badge.meninggal {
-            background: var(--danger);
+            background: var(--islamic);
         }
 
         .status-badge.cerai {
@@ -514,9 +519,9 @@
         }
 
         .marriage-status.menikah {
-            background: rgba(76, 201, 240, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
+            background: rgba(46, 125, 50, 0.2);
+            color: var(--islamic);
+            border: 1px solid var(--islamic);
         }
 
         .marriage-status.cerai {
@@ -564,11 +569,11 @@
         .child-item:hover {
             transform: translateX(5px);
             background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary);
+            border-color: var(--islamic);
         }
 
         .child-number {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             color: white;
             width: 35px;
             height: 35px;
@@ -588,7 +593,7 @@
             margin-right: 1rem;
             background-size: cover;
             background-position: center;
-            border: 2px solid var(--primary);
+            border: 2px solid var(--islamic);
         }
 
         .child-info {
@@ -641,7 +646,7 @@
         }
 
         .photo-item:hover .gallery-photo {
-            border-color: var(--primary);
+            border-color: var(--islamic);
             transform: scale(1.05);
         }
 
@@ -651,6 +656,48 @@
             color: var(--gray-300);
             font-size: 0.9rem;
             font-weight: 500;
+        }
+
+        /* QR Code Styles */
+        .qr-container {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            display: inline-block;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .qr-code canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .qr-label {
+            color: var(--dark);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .location-link {
+            color: var(--islamic);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .location-link:hover {
+            text-decoration: underline;
         }
 
         /* Modal Styles */
@@ -704,7 +751,7 @@
         .modal-header h3 {
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, var(--primary-light));
+            background: linear-gradient(135deg, #fff, var(--islamic));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -761,9 +808,9 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--islamic);
             background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
         }
 
         .form-group input::placeholder,
@@ -788,7 +835,7 @@
             border-radius: 50%;
             margin: 0 auto 1rem;
             background: rgba(255, 255, 255, 0.05);
-            border: 3px dashed var(--primary);
+            border: 3px dashed var(--islamic);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -799,7 +846,7 @@
         }
 
         .photo-preview:hover {
-            border-color: var(--accent);
+            border-color: var(--islamic-gold);
             transform: scale(1.05);
         }
 
@@ -819,7 +866,7 @@
         }
 
         .upload-btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             color: white;
             border: none;
             padding: 0.75rem 2rem;
@@ -837,7 +884,7 @@
         /* Spouse Row */
         .spouse-row {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--accent);
+            border: 1px solid var(--islamic);
             border-radius: var(--radius-lg);
             padding: 1rem;
             margin-bottom: 1rem;
@@ -879,14 +926,94 @@
             background: #ff0000;
         }
 
-        /* Map Container */
-        .map-container {
-            height: 250px;
-            width: 100%;
+        /* QR Code in Form */
+        .qr-preview {
+            background: white;
+            padding: 1rem;
             border-radius: var(--radius-lg);
-            border: 2px solid var(--primary);
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .qr-preview #qrCodeForm {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .qr-p        .qr-preview #qrCodeForm {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .qr-preview canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .qr-preview .qr-label {
+            color: var(--dark);
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Map Container - Diganti dengan QR */
+        .map-container {
+            display: none;
+        }
+
+        .qr-address-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
             margin: 0.5rem 0;
-            z-index: 1;
+            border: 1px solid var(--islamic);
+        }
+
+        .qr-address-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qr-address-display #qrAddressCode {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+        }
+
+        .qr-address-display canvas {
+            width: 200px !important;
+            height: 200px !important;
+        }
+
+        .address-text {
+            font-size: 0.9rem;
+            color: var(--gray-300);
+            text-align: center;
+            max-width: 300px;
+            word-break: break-word;
+        }
+
+        .btn-qr {
+            background: var(--islamic);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-qr:hover {
+            background: var(--islamic-gold);
+            transform: translateY(-2px);
         }
 
         /* Marriage Status Group */
@@ -909,10 +1036,11 @@
 
         .marriage-option:hover {
             background: rgba(255, 255, 255, 0.1);
+            border-color: var(--islamic);
         }
 
         .marriage-option.selected {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--islamic), var(--islamic-gold));
             border-color: white;
         }
 
@@ -935,7 +1063,7 @@
             margin: 0 auto 1.5rem;
             background-size: cover;
             background-position: center;
-            border: 5px solid var(--primary);
+            border: 5px solid var(--islamic);
             box-shadow: var(--shadow-xl);
             position: relative;
         }
@@ -960,6 +1088,7 @@
             border-radius: var(--radius-full);
             font-weight: 600;
             margin: 0.5rem;
+            font-size: 0.9rem;
         }
 
         .info-grid {
@@ -988,6 +1117,92 @@
             color: white;
         }
 
+        /* QR Section in Detail */
+        .qr-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .qr-section h4 {
+            margin-bottom: 1rem;
+            color: var(--islamic);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .qr-detail-container {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            display: inline-block;
+        }
+
+        .qr-detail-container canvas {
+            width: 200px !important;
+            height: 200px !important;
+        }
+
+        .alamat-lengkap {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray-300);
+            word-break: break-word;
+        }
+
+        /* Islamic Death Style */
+        .islamic-death {
+            background: rgba(46, 125, 50, 0.1);
+            border-left: 4px solid var(--islamic);
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .islamic-death i {
+            font-size: 2rem;
+            color: var(--islamic);
+        }
+
+        .islamic-death .death-text {
+            flex: 1;
+        }
+
+        .islamic-death .death-text h4 {
+            color: var(--islamic);
+            margin-bottom: 0.25rem;
+        }
+
+        .islamic-death .death-text p {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+        }
+
+        /* Doa Section */
+        .doa-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-style: italic;
+            color: var(--gray-300);
+            border: 1px dashed var(--islamic);
+        }
+
+        .doa-arab {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--islamic-gold);
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -1001,7 +1216,7 @@
             box-shadow: var(--shadow-xl);
             display: none;
             z-index: 10001;
-            border-left: 4px solid var(--success);
+            border-left: 4px solid var(--islamic);
             color: var(--dark);
             font-weight: 500;
             animation: slideUp 0.3s ease;
@@ -1018,12 +1233,14 @@
             .parent-item { flex: 0 1 200px; }
             .photo-frame { width: 100px; height: 100px; font-size: 2rem; }
             .header h1 { font-size: 1.8rem; }
+            .info-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 480px) {
             .stats-container { grid-template-columns: 1fr; }
             .action-buttons { flex-direction: column; }
             .btn { width: 100%; justify-content: center; }
+            .clock-container { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -1032,6 +1249,10 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner-large"></div>
         <div class="loading-text">Memuat data keluarga...</div>
+        <div class="doa-section" style="background: transparent; border: none; max-width: 300px;">
+            <div class="doa-arab">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+            <div>Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang</div>
+        </div>
     </div>
 
     <div class="container">
@@ -1182,7 +1403,7 @@
                     <label><i class="fas fa-heartbeat"></i> Status</label>
                     <select id="status" onchange="toggleStatusMeninggal()">
                         <option value="hidup">❤️ Masih Hidup</option>
-                        <option value="meninggal">✝️ Meninggal Dunia</option>
+                        <option value="meninggal">🕋 Meninggal Dunia</option>
                     </select>
                 </div>
 
@@ -1195,6 +1416,10 @@
                     <div class="form-group">
                         <label><i class="fas fa-info-circle"></i> Keterangan Meninggal</label>
                         <textarea id="keteranganMeninggal" placeholder="Sebab meninggal / lokasi pemakaman"></textarea>
+                    </div>
+                    <div class="doa-section">
+                        <div class="doa-arab">إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ</div>
+                        <div>Sesungguhnya kita milik Allah dan kepada-Nya kita kembali</div>
                     </div>
                 </div>
 
@@ -1233,21 +1458,16 @@
                     <input type="date" id="tanggalLahir">
                 </div>
 
-                <!-- Alamat -->
+                <!-- Alamat dengan QR Code -->
                 <div class="form-group">
                     <label><i class="fas fa-map-marker-alt"></i> Alamat</label>
-                    <textarea id="alamat" placeholder="Alamat lengkap"></textarea>
+                    <textarea id="alamat" placeholder="Alamat lengkap" oninput="generateQRCodeForm()"></textarea>
                 </div>
 
-                <!-- Peta -->
-                <div class="form-group">
-                    <label><i class="fas fa-map"></i> Lokasi Peta</label>
-                    <div id="mapPreview" class="map-container"></div>
-                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-                        <input type="text" id="mapLat" placeholder="Latitude" value="-6.2088">
-                        <input type="text" id="mapLng" placeholder="Longitude" value="106.8456">
-                        <button type="button" class="btn" onclick="cariLokasi()"><i class="fas fa-search"></i></button>
-                    </div>
+                <!-- QR Code Preview -->
+                <div class="qr-preview" id="qrPreviewForm" style="display: none;">
+                    <div id="qrCodeForm"></div>
+                    <div class="qr-label">Scan untuk melihat alamat</div>
                 </div>
 
                 <!-- Kontak -->
@@ -1320,6 +1540,21 @@
         </div>
     </div>
 
+    <!-- Modal QR -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content" style="max-width:400px; text-align:center;">
+            <div class="modal-header">
+                <h3><i class="fas fa-qrcode"></i> Scan Alamat</h3>
+                <button class="close-btn" onclick="tutupQRModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="qrLargeContainer" style="padding:2rem; background:white; border-radius:var(--radius-lg); margin:1rem 0;"></div>
+            <div id="qrAlamatText" style="color:var(--gray-300); margin-bottom:1rem;"></div>
+            <button class="btn btn-primary" onclick="downloadQRCode()">
+                <i class="fas fa-download"></i> Download QR Code
+            </button>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
@@ -1380,12 +1615,12 @@
 
         // ==================== VARIABEL GLOBAL ====================
         let keluargaData = JSON.parse(JSON.stringify(DATA_DEFAULT));
-        let map = null;
-        let marker = null;
         let currentEditId = null;
         let currentParentId = null;
         let isSaving = false;
         let isLoading = true;
+        let qrCodeForm = null;
+        let currentQRData = null;
 
         // ==================== INISIALISASI ====================
         document.addEventListener('DOMContentLoaded', function() {
@@ -1545,6 +1780,96 @@
             }
         }
 
+        // ==================== FUNGSI QR CODE ====================
+        function generateQRCodeForm() {
+            const alamat = document.getElementById('alamat')?.value;
+            const qrPreview = document.getElementById('qrPreviewForm');
+            const qrContainer = document.getElementById('qrCodeForm');
+            
+            if (!alamat || alamat.trim() === '') {
+                qrPreview.style.display = 'none';
+                return;
+            }
+
+            // Clear previous QR code
+            qrContainer.innerHTML = '';
+            
+            // Generate new QR code
+            try {
+                new QRCode(qrContainer, {
+                    text: alamat,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#2e7d32",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                qrPreview.style.display = 'block';
+            } catch (e) {
+                console.error('QR Code error:', e);
+            }
+        }
+
+        function generateQRCode(alamat, elementId, size = 200) {
+            const container = document.getElementById(elementId);
+            if (!container) return null;
+            
+            container.innerHTML = '';
+            
+            try {
+                return new QRCode(container, {
+                    text: alamat,
+                    width: size,
+                    height: size,
+                    colorDark: "#2e7d32",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (e) {
+                console.error('QR Code error:', e);
+                return null;
+            }
+        }
+
+        function showQRModal(alamat) {
+            if (!alamat) {
+                showToast('Tidak ada alamat untuk ditampilkan', 'warning');
+                return;
+            }
+            
+            currentQRData = alamat;
+            const container = document.getElementById('qrLargeContainer');
+            container.innerHTML = '';
+            
+            new QRCode(container, {
+                text: alamat,
+                width: 250,
+                height: 250,
+                colorDark: "#2e7d32",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            document.getElementById('qrAlamatText').textContent = alamat;
+            document.getElementById('qrModal').style.display = 'block';
+        }
+
+        function tutupQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        function downloadQRCode() {
+            if (!currentQRData) return;
+            
+            const canvas = document.querySelector('#qrLargeContainer canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode-alamat.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+
         // ==================== FUNGSI STATUS PERNIKAHAN ====================
         function pilihStatusPernikahan(status) {
             document.getElementById('statusPernikahan').value = status;
@@ -1555,7 +1880,8 @@
             });
             
             // Tambah class selected ke option yang dipilih
-            document.getElementById('status' + status.charAt(0).toUpperCase() + status.slice(1)).classList.add('selected');
+            const element = document.getElementById('status' + status.charAt(0).toUpperCase() + status.slice(1));
+            if (element) element.classList.add('selected');
             
             // Tampilkan/sembunyikan section pasangan berdasarkan status
             const pasanganSection = document.getElementById('pasanganSection');
@@ -1598,7 +1924,8 @@
 
         function renderParentItem(anggota, peran) {
             const genderClass = anggota.gender === 'L' ? 'male' : 'female';
-            const statusIcon = anggota.status === 'meninggal' ? '✝️' : '❤️';
+            // Ganti icon meninggal dengan icon Islami
+            const statusIcon = anggota.status === 'meninggal' ? '🕋' : '❤️';
             const statusClass = anggota.status === 'meninggal' ? 'meninggal' : '';
             
             let marriageStatusHtml = '';
@@ -1606,7 +1933,7 @@
                 let icon = '';
                 let text = '';
                 switch(anggota.statusPernikahan) {
-                    case 'menikah': icon = '💍'; text = 'Menikah'; break;
+                    case 'menikah': icon = '🤲'; text = 'Menikah'; break;
                     case 'cerai': icon = '💔'; text = 'Cerai'; break;
                     case 'duda': icon = '👨'; text = 'Duda'; break;
                     case 'janda': icon = '👩'; text = 'Janda'; break;
@@ -1630,13 +1957,14 @@
         }
 
         function renderChildItem(anak, index) {
-            const statusIcon = anak.status === 'meninggal' ? '✝️' : '❤️';
+            // Ganti icon meninggal dengan icon Islami
+            const statusIcon = anak.status === 'meninggal' ? '🕋' : '❤️';
             const fotoStyle = anak.foto ? `background-image:url('${anak.foto}')` : '';
             
             let marriageIcon = '';
             if (anak.statusPernikahan) {
                 switch(anak.statusPernikahan) {
-                    case 'menikah': marriageIcon = '💍'; break;
+                    case 'menikah': marriageIcon = '🤲'; break;
                     case 'cerai': marriageIcon = '💔'; break;
                     case 'duda': marriageIcon = '👨'; break;
                     case 'janda': marriageIcon = '👩'; break;
@@ -1803,7 +2131,6 @@
             document.getElementById('modalTitle').textContent = 'Tambah Anggota Baru';
             document.getElementById('formModal').style.display = 'block';
             pilihStatusPernikahan('menikah');
-            setTimeout(() => initMap(-6.2088, 106.8456), 300);
         }
 
         function tambahAnak(parentId) {
@@ -1812,7 +2139,6 @@
             document.getElementById('modalTitle').textContent = 'Tambah Anak';
             document.getElementById('formModal').style.display = 'block';
             pilihStatusPernikahan('menikah');
-            setTimeout(() => initMap(-6.2088, 106.8456), 300);
         }
 
         function resetForm() {
@@ -1840,6 +2166,9 @@
             const hapusBtn = document.getElementById('hapusBtn');
             if (hapusBtn) hapusBtn.style.display = 'none';
             
+            // Sembunyikan preview QR
+            document.getElementById('qrPreviewForm').style.display = 'none';
+            
             // Reset marriage status
             document.querySelectorAll('.marriage-option').forEach(opt => {
                 opt.classList.remove('selected');
@@ -1860,7 +2189,7 @@
                 <input type="text" placeholder="Nama lengkap pasangan" class="spouse-name" style="width:100%; margin-bottom:0.5rem;" required>
                 <select class="spouse-status" style="width:100%;">
                     <option value="hidup">❤️ Masih Hidup</option>
-                    <option value="meninggal">✝️ Meninggal</option>
+                    <option value="meninggal">🕋 Meninggal</option>
                 </select>
                 <div style="margin-top:0.5rem; font-size:0.9rem; color:var(--gray-400);">
                     <i class="fas fa-info-circle"></i> Data pasangan akan dibuat otomatis
@@ -1932,8 +2261,6 @@
                 tempatLahir: document.getElementById('tempatLahir')?.value || null,
                 tanggalLahir: document.getElementById('tanggalLahir')?.value || null,
                 alamat: document.getElementById('alamat')?.value || null,
-                lat: document.getElementById('mapLat')?.value || '-6.2088',
-                lng: document.getElementById('mapLng')?.value || '106.8456',
                 telepon: document.getElementById('telepon')?.value || null,
                 pendidikan: document.getElementById('pendidikan')?.value || null,
                 pekerjaan: document.getElementById('pekerjaan')?.value || null,
@@ -2062,13 +2389,11 @@
             if (tanggalLahir) tanggalLahir.value = anggota.tanggalLahir || '';
             
             const alamat = document.getElementById('alamat');
-            if (alamat) alamat.value = anggota.alamat || '';
-            
-            const mapLat = document.getElementById('mapLat');
-            if (mapLat) mapLat.value = anggota.lat || '-6.2088';
-            
-            const mapLng = document.getElementById('mapLng');
-            if (mapLng) mapLng.value = anggota.lng || '106.8456';
+            if (alamat) {
+                alamat.value = anggota.alamat || '';
+                // Generate QR code untuk alamat yang sudah ada
+                setTimeout(() => generateQRCodeForm(), 100);
+            }
             
             const telepon = document.getElementById('telepon');
             if (telepon) telepon.value = anggota.telepon || '';
@@ -2108,7 +2433,7 @@
                             div.innerHTML = `
                                 <input type="text" value="${pasangan.nama}" readonly style="width:100%; background:rgba(0,0,0,0.3);">
                                 <div style="font-size:0.9rem; margin-top:0.5rem; color:var(--gray-300);">
-                                    ${pasangan.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Masih Hidup'}
+                                    ${pasangan.status === 'meninggal' ? '🕋 Meninggal' : '❤️ Masih Hidup'}
                                 </div>
                             `;
                             pasanganContainer.appendChild(div);
@@ -2122,10 +2447,6 @@
             
             const formModal = document.getElementById('formModal');
             if (formModal) formModal.style.display = 'block';
-            
-            setTimeout(() => {
-                initMap(parseFloat(anggota.lat) || -6.2088, parseFloat(anggota.lng) || 106.8456);
-            }, 300);
         }
 
         function hapusAnggota() {
@@ -2177,30 +2498,31 @@
             const anggota = keluargaData.anggota[id];
             if (!anggota) return;
 
-            const statusIcon = anggota.status === 'meninggal' ? '✝️' : '❤️';
+            // Ganti icon meninggal dengan icon Islami
+            const statusIcon = anggota.status === 'meninggal' ? '🕋' : '❤️';
             const statusText = anggota.status === 'meninggal' ? 'Meninggal' : 'Masih Hidup';
             
             let marriageStatusText = '';
             let marriageIcon = '';
             switch(anggota.statusPernikahan) {
-                case 'menikah': marriageIcon = '💍'; marriageStatusText = 'Menikah'; break;
+                case 'menikah': marriageIcon = '🤲'; marriageStatusText = 'Menikah'; break;
                 case 'cerai': marriageIcon = '💔'; marriageStatusText = 'Cerai'; break;
                 case 'duda': marriageIcon = '👨'; marriageStatusText = 'Duda'; break;
                 case 'janda': marriageIcon = '👩'; marriageStatusText = 'Janda'; break;
-                default: marriageIcon = '💍'; marriageStatusText = 'Menikah';
+                default: marriageIcon = '🤲'; marriageStatusText = 'Menikah';
             }
 
             let html = `
                 <div style="text-align:center; margin-bottom:2rem;">
-                    <div class="detail-avatar" style="${anggota.foto ? `background-image:url('${anggota.foto}')` : `background: linear-gradient(135deg, var(--primary), var(--secondary)); display:flex; align-items:center; justify-content:center;`}">
+                    <div class="detail-avatar" style="${anggota.foto ? `background-image:url('${anggota.foto}')` : `background: linear-gradient(135deg, var(--islamic), var(--islamic-gold)); display:flex; align-items:center; justify-content:center;`}">
                         ${!anggota.foto ? `<span style="font-size:3rem; color:white;">${getInitials(anggota.nama)}</span>` : ''}
                     </div>
-                    <h2 style="font-size:2rem; margin-bottom:0.5rem; background: linear-gradient(135deg, #fff, var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${anggota.nama}</h2>
+                    <h2 style="font-size:2rem; margin-bottom:0.5rem; background: linear-gradient(135deg, #fff, var(--islamic)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${anggota.nama}</h2>
                     <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:1rem;">
-                        <span class="detail-status-badge" style="background:${anggota.gender === 'L' ? 'var(--primary)' : 'var(--accent)'}">
+                        <span class="detail-status-badge" style="background:${anggota.gender === 'L' ? 'var(--islamic)' : 'var(--accent)'}">
                             <i class="fas ${anggota.gender === 'L' ? 'fa-mars' : 'fa-venus'}"></i> ${anggota.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
                         </span>
-                        <span class="detail-status-badge" style="background:${anggota.status === 'meninggal' ? 'var(--danger)' : 'var(--success)'}">
+                        <span class="detail-status-badge" style="background:${anggota.status === 'meninggal' ? 'var(--islamic)' : 'var(--success)'}">
                             ${statusIcon} ${statusText}
                         </span>
                         <span class="detail-status-badge" style="background:var(--info)">
@@ -2260,6 +2582,20 @@
             
             html += `</div>`;
 
+            // QR Code untuk Alamat
+            if (anggota.alamat) {
+                html += `
+                    <div class="qr-section">
+                        <h4><i class="fas fa-qrcode"></i> Scan Alamat</h4>
+                        <div class="qr-detail-container" id="qrDetail_${anggota.id}"></div>
+                        <div class="alamat-lengkap">${anggota.alamat}</div>
+                        <button class="btn-qr" onclick="showQRModal('${anggota.alamat.replace(/'/g, "\\'")}')" style="margin-top:1rem;">
+                            <i class="fas fa-expand"></i> Perbesar QR
+                        </button>
+                    </div>
+                `;
+            }
+
             // Pasangan
             if (anggota.pasangan && anggota.pasangan.length > 0) {
                 html += `<div style="margin:1.5rem 0; background:rgba(255,255,255,0.05); border-radius:var(--radius-lg); padding:1.5rem;">`;
@@ -2267,12 +2603,13 @@
                 anggota.pasangan.forEach(pId => {
                     const p = keluargaData.anggota[pId];
                     if (p) {
+                        const pStatusIcon = p.status === 'meninggal' ? '🕋' : '❤️';
                         html += `
                             <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:var(--radius-lg); cursor:pointer;" onclick="lihatDetail('${p.id}')">
-                                <div style="width:40px; height:40px; border-radius:50%; background:${p.foto ? `url('${p.foto}')` : 'linear-gradient(135deg, var(--primary), var(--secondary))'}; background-size:cover; background-position:center;"></div>
+                                <div style="width:40px; height:40px; border-radius:50%; background:${p.foto ? `url('${p.foto}')` : 'linear-gradient(135deg, var(--islamic), var(--islamic-gold))'}; background-size:cover; background-position:center;"></div>
                                 <div style="flex:1;">
                                     <div style="font-weight:600;">${p.nama}</div>
-                                    <div style="font-size:0.8rem; color:var(--gray-400);">${p.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Hidup'}</div>
+                                    <div style="font-size:0.8rem; color:var(--gray-400);">${pStatusIcon} ${p.status === 'meninggal' ? 'Meninggal' : 'Hidup'}</div>
                                 </div>
                             </div>
                         `;
@@ -2288,12 +2625,13 @@
                 anggota.anak.forEach((aId, index) => {
                     const a = keluargaData.anggota[aId];
                     if (a) {
+                        const aStatusIcon = a.status === 'meninggal' ? '🕋' : '❤️';
                         html += `
                             <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:var(--radius-lg); cursor:pointer;" onclick="lihatDetail('${a.id}')">
-                                <div style="width:40px; height:40px; border-radius:50%; background:${a.foto ? `url('${a.foto}')` : 'linear-gradient(135deg, var(--primary), var(--secondary))'}; background-size:cover; background-position:center;"></div>
+                                <div style="width:40px; height:40px; border-radius:50%; background:${a.foto ? `url('${a.foto}')` : 'linear-gradient(135deg, var(--islamic), var(--islamic-gold))'}; background-size:cover; background-position:center;"></div>
                                 <div style="flex:1;">
                                     <div style="font-weight:600;">${index+1}. ${a.nama}</div>
-                                    <div style="font-size:0.8rem; color:var(--gray-400);">${a.pekerjaan || '-'}</div>
+                                    <div style="font-size:0.8rem; color:var(--gray-400);">${aStatusIcon} ${a.pekerjaan || '-'}</div>
                                 </div>
                             </div>
                         `;
@@ -2302,13 +2640,26 @@
                 html += `</div>`;
             }
 
-            // Keterangan Meninggal
+            // Keterangan Meninggal dengan gaya Islami
             if (anggota.status === 'meninggal' && anggota.keteranganMeninggal) {
                 html += `
-                    <div style="margin:1.5rem 0; background:rgba(249, 65, 68, 0.1); border-radius:var(--radius-lg); padding:1.5rem; border-left:4px solid var(--danger);">
-                        <h4 style="margin-bottom:0.5rem;"><i class="fas fa-mosque"></i> Meninggal Dunia</h4>
-                        <p>Tahun: ${anggota.tahunMeninggal || '-'}</p>
-                        <p>Keterangan: ${anggota.keteranganMeninggal}</p>
+                    <div class="islamic-death">
+                        <i class="fas fa-mosque"></i>
+                        <div class="death-text">
+                            <h4>Innalillahi wa inna ilaihi raji'un</h4>
+                            <p>Tahun: ${anggota.tahunMeninggal || '-'}</p>
+                            <p>${anggota.keteranganMeninggal}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (anggota.status === 'meninggal') {
+                html += `
+                    <div class="islamic-death">
+                        <i class="fas fa-mosque"></i>
+                        <div class="death-text">
+                            <h4>Innalillahi wa inna ilaihi raji'un</h4>
+                            <p>Telah berpulang ke rahmatullah</p>
+                        </div>
                     </div>
                 `;
             }
@@ -2319,6 +2670,16 @@
                     <div style="margin:1.5rem 0; background:rgba(255,255,255,0.05); border-radius:var(--radius-lg); padding:1.5rem;">
                         <h4 style="margin-bottom:0.5rem;"><i class="fas fa-sticky-note"></i> Keterangan</h4>
                         <p>${anggota.keterangan}</p>
+                    </div>
+                `;
+            }
+
+            // Doa untuk yang masih hidup
+            if (anggota.status !== 'meninggal') {
+                html += `
+                    <div class="doa-section">
+                        <div class="doa-arab">اللهم بارك لهم وبارك عليهم</div>
+                        <div>Ya Allah, berkahilah mereka dan limpahkanlah keberkahan atas mereka</div>
                     </div>
                 `;
             }
@@ -2338,6 +2699,13 @@
             const detailContent = document.getElementById('detailContent');
             if (detailContent) detailContent.innerHTML = html;
             
+            // Generate QR code untuk alamat di detail
+            if (anggota.alamat) {
+                setTimeout(() => {
+                    generateQRCode(anggota.alamat, 'qrDetail_' + anggota.id, 150);
+                }, 100);
+            }
+            
             const detailModal = document.getElementById('detailModal');
             if (detailModal) detailModal.style.display = 'block';
         }
@@ -2345,87 +2713,11 @@
         function tutupModal() {
             const formModal = document.getElementById('formModal');
             if (formModal) formModal.style.display = 'none';
-            
-            if (map) {
-                map.remove();
-                map = null;
-            }
         }
 
         function tutupDetailModal() {
             const detailModal = document.getElementById('detailModal');
             if (detailModal) detailModal.style.display = 'none';
-        }
-
-        // ==================== MAP FUNCTIONS ====================
-        function initMap(lat, lng) {
-            const mapElement = document.getElementById('mapPreview');
-            if (!mapElement) return;
-
-            if (map) {
-                map.remove();
-            }
-
-            map = L.map('mapPreview').setView([lat, lng], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-            
-            marker.on('dragend', function(e) {
-                const pos = e.target.getLatLng();
-                const mapLat = document.getElementById('mapLat');
-                const mapLng = document.getElementById('mapLng');
-                if (mapLat) mapLat.value = pos.lat.toFixed(6);
-                if (mapLng) mapLng.value = pos.lng.toFixed(6);
-            });
-
-            map.on('click', function(e) {
-                const pos = e.latlng;
-                marker.setLatLng(pos);
-                const mapLat = document.getElementById('mapLat');
-                const mapLng = document.getElementById('mapLng');
-                if (mapLat) mapLat.value = pos.lat.toFixed(6);
-                if (mapLng) mapLng.value = pos.lng.toFixed(6);
-            });
-        }
-
-        function cariLokasi() {
-            const alamat = document.getElementById('alamat')?.value;
-            if (!alamat) {
-                showToast('Masukkan alamat dulu', 'error');
-                return;
-            }
-
-            showToast('Mencari lokasi...', 'warning');
-
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(alamat)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data[0]) {
-                        const lat = parseFloat(data[0].lat);
-                        const lng = parseFloat(data[0].lon);
-                        
-                        const mapLat = document.getElementById('mapLat');
-                        const mapLng = document.getElementById('mapLng');
-                        
-                        if (mapLat) mapLat.value = lat.toFixed(6);
-                        if (mapLng) mapLng.value = lng.toFixed(6);
-                        
-                        if (map && marker) {
-                            map.setView([lat, lng], 15);
-                            marker.setLatLng([lat, lng]);
-                        }
-                        showToast('Lokasi ditemukan');
-                    } else {
-                        showToast('Lokasi tidak ditemukan', 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showToast('Gagal mencari lokasi', 'error');
-                });
         }
 
         // ==================== DIAGRAM FUNCTIONS ====================
@@ -2445,14 +2737,14 @@
                 let marriageSymbol = '';
                 if (anggota.statusPernikahan) {
                     switch(anggota.statusPernikahan) {
-                        case 'menikah': marriageSymbol = ' 💍'; break;
+                        case 'menikah': marriageSymbol = ' 🤲'; break;
                         case 'cerai': marriageSymbol = ' 💔'; break;
                         case 'duda': marriageSymbol = ' 👨'; break;
                         case 'janda': marriageSymbol = ' 👩'; break;
                     }
                 }
                 
-                const statusSymbol = anggota.status === 'meninggal' ? ' ✝️' : ' ❤️';
+                const statusSymbol = anggota.status === 'meninggal' ? ' 🕋' : ' ❤️';
                 
                 result += `<div style="margin:0.5rem 0; color:${level === 0 ? 'gold' : 'white'};">${indent}${symbol} <strong>${anggota.nama}</strong>${marriageSymbol}${statusSymbol}</div>`;
                 
