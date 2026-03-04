@@ -708,14 +708,24 @@
 
     <script>
         // ==================== KONFIGURASI FIREBASE ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyDFzpkDQ4-XxE3LEKd2hAdicCe3KscQkDs",
-            authDomain: "bani-ali-imron.firebaseapp.com",
-            databaseURL: "https://bani-ali-imron-default-rtdb.firebaseio.com",
-            projectId: "bani-ali-imron",
-            storageBucket: "bani-ali-imron.firebasestorage.app",
-            messagingSenderId: "150471042717",
-            appId: "1:150471042717:web:5a7596ef251d68a2df1674"
+       // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCoy4-Ju4_ELB9ZO6SdHuQ3xVjktajdKYM",
+  authDomain: "bani-ali-imron-9327f.firebaseapp.com",
+  databaseURL: "https://bani-ali-imron-9327f-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bani-ali-imron-9327f",
+  storageBucket: "bani-ali-imron-9327f.firebasestorage.app",
+  messagingSenderId: "733656288966",
+  appId: "1:733656288966:web:8e7fbfef0bedc29ea391c7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
         };
 
         // Inisialisasi Firebase
