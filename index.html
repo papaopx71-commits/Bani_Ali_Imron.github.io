@@ -708,27 +708,17 @@
 
     <script>
         // ==================== KONFIGURASI FIREBASE ====================
-       // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCoy4-Ju4_ELB9ZO6SdHuQ3xVjktajdKYM",
-  authDomain: "bani-ali-imron-9327f.firebaseapp.com",
-  databaseURL: "https://bani-ali-imron-9327f-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "bani-ali-imron-9327f",
-  storageBucket: "bani-ali-imron-9327f.firebasestorage.app",
-  messagingSenderId: "733656288966",
-  appId: "1:733656288966:web:8e7fbfef0bedc29ea391c7"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+        const firebaseConfig = {
+            apiKey: "AIzaSyCoy4-Ju4_ELB9ZO6SdHuQ3xVjktajdKYM",
+            authDomain: "bani-ali-imron-9327f.firebaseapp.com",
+            databaseURL: "https://bani-ali-imron-9327f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bani-ali-imron-9327f",
+            storageBucket: "bani-ali-imron-9327f.firebasestorage.app",
+            messagingSenderId: "733656288966",
+            appId: "1:733656288966:web:8e7fbfef0bedc29ea391c7"
         };
 
-        // Inisialisasi Firebase
+        // ==================== INISIALISASI FIREBASE ====================
         let database;
         try {
             firebase.initializeApp(firebaseConfig);
@@ -775,13 +765,14 @@ const app = initializeApp(firebaseConfig);
         let currentEditId = null;
         let currentParentId = null;
         let isSaving = false;
+        let isLoading = true;
 
         // ==================== INISIALISASI ====================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📱 DOM loaded');
-            initFirebase();
             initClock();
             initHijriDate();
+            initFirebase();
         });
 
         function initFirebase() {
@@ -797,7 +788,6 @@ const app = initializeApp(firebaseConfig);
             database.ref('.info/connected').on('value', (snapshot) => {
                 if (snapshot.val() === true) {
                     console.log('✅ Terhubung ke Firebase');
-                    showToast('Terhubung ke database', 'success');
                 }
             });
 
@@ -807,7 +797,7 @@ const app = initializeApp(firebaseConfig);
                     const data = snapshot.val();
                     if (data && data.anggota && data.pendiri) {
                         keluargaData = data;
-                        console.log('📦 Data dimuat:', Object.keys(keluargaData.anggota).length, 'anggota');
+                        console.log('📦 Data dimuat:', Object.keys(keluargaData.anggota || {}).length, 'anggota');
                         showToast('Data berhasil dimuat', 'success');
                     } else {
                         console.log('📦 Data kosong, menyimpan default');
@@ -826,13 +816,13 @@ const app = initializeApp(firebaseConfig);
                 .finally(() => {
                     renderSemua();
                     document.getElementById('loadingOverlay').style.display = 'none';
+                    isLoading = false;
                 });
         }
 
         function simpanKeFirebase() {
             return new Promise((resolve, reject) => {
                 if (!database) {
-                    // Mode lokal - hanya simpan di memory
                     console.log('📝 Data disimpan lokal');
                     showToast('Data tersimpan (lokal)', 'success');
                     resolve(true);
@@ -881,6 +871,8 @@ const app = initializeApp(firebaseConfig);
 
         function updateSyncIndicator(status, message) {
             const indicator = document.getElementById('syncIndicator');
+            if (!indicator) return;
+            
             indicator.className = 'sync-indicator';
             
             if (status === 'syncing') {
@@ -901,13 +893,21 @@ const app = initializeApp(firebaseConfig);
 
         function updateClock() {
             const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+            const dateEl = document.getElementById('currentDate');
+            const timeEl = document.getElementById('currentTime');
+            
+            if (dateEl) {
+                dateEl.textContent = now.toLocaleDateString('id-ID', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+            
+            if (timeEl) {
+                timeEl.textContent = now.toLocaleTimeString('id-ID');
+            }
         }
 
         function initHijriDate() {
@@ -916,13 +916,14 @@ const app = initializeApp(firebaseConfig);
                                 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Sya\'ban', 
                                 'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'];
             const now = new Date();
-            // Hitungan sederhana, bukan akurat
             const hijriYear = 1446; 
             const hijriMonth = now.getMonth();
             const hijriDay = now.getDate();
             
-            document.getElementById('hijriDate').textContent = 
-                `${hijriDay} ${hijriMonths[hijriMonth]} ${hijriYear} H`;
+            const hijriEl = document.getElementById('hijriDate');
+            if (hijriEl) {
+                hijriEl.textContent = `${hijriDay} ${hijriMonths[hijriMonth]} ${hijriYear} H`;
+            }
         }
 
         // ==================== RENDER FUNCTIONS ====================
@@ -937,7 +938,7 @@ const app = initializeApp(firebaseConfig);
 
         function renderPendiri() {
             const container = document.getElementById('pendiriContainer');
-            if (!keluargaData.pendiri) return;
+            if (!container || !keluargaData.pendiri) return;
             
             const pendiri = keluargaData.anggota[keluargaData.pendiri.id] || keluargaData.pendiri;
             
@@ -972,11 +973,11 @@ const app = initializeApp(firebaseConfig);
 
         function renderAnak() {
             const container = document.getElementById('anakContainer');
+            if (!container) return;
+            
             container.innerHTML = '';
 
-            if (!keluargaData.pendiri || !keluargaData.pendiri.anak) return;
-
-            if (keluargaData.pendiri.anak.length === 0) {
+            if (!keluargaData.pendiri || !keluargaData.pendiri.anak || keluargaData.pendiri.anak.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:gray;">Belum ada anak</p>';
                 return;
             }
@@ -999,6 +1000,8 @@ const app = initializeApp(firebaseConfig);
 
         function renderKeluargaLain() {
             const container = document.getElementById('keluargaLainnya');
+            if (!container) return;
+            
             container.innerHTML = '';
 
             if (!keluargaData.pendiri || !keluargaData.pendiri.anak) return;
@@ -1067,6 +1070,8 @@ const app = initializeApp(firebaseConfig);
 
         function renderGallery() {
             const gallery = document.getElementById('photoGallery');
+            if (!gallery) return;
+            
             gallery.innerHTML = '';
 
             const fotoAnggota = Object.values(keluargaData.anggota || {}).filter(a => a && a.foto);
@@ -1088,7 +1093,8 @@ const app = initializeApp(firebaseConfig);
 
         function updateStats() {
             const total = Object.keys(keluargaData.anggota || {}).length;
-            document.getElementById('totalAnggota').textContent = total;
+            const totalEl = document.getElementById('totalAnggota');
+            if (totalEl) totalEl.textContent = total;
 
             let maxGen = 1;
             function hitungGenerasi(id, gen = 1) {
@@ -1103,19 +1109,25 @@ const app = initializeApp(firebaseConfig);
             if (keluargaData.pendiri) {
                 hitungGenerasi(keluargaData.pendiri.id);
             }
-            document.getElementById('totalGenerasi').textContent = maxGen;
+            
+            const genEl = document.getElementById('totalGenerasi');
+            if (genEl) genEl.textContent = maxGen;
 
             let keluargaCount = 0;
             for (let id in keluargaData.anggota) {
                 if (keluargaData.anggota[id].pasangan?.length > 0) keluargaCount++;
             }
-            document.getElementById('totalKeluarga').textContent = keluargaCount;
+            
+            const keluargaEl = document.getElementById('totalKeluarga');
+            if (keluargaEl) keluargaEl.textContent = keluargaCount;
 
             let hidup = 0;
             for (let id in keluargaData.anggota) {
                 if (keluargaData.anggota[id].status !== 'meninggal') hidup++;
             }
-            document.getElementById('totalHidup').textContent = hidup;
+            
+            const hidupEl = document.getElementById('totalHidup');
+            if (hidupEl) hidupEl.textContent = hidup;
         }
 
         // ==================== CRUD OPERATIONS ====================
@@ -1135,19 +1147,35 @@ const app = initializeApp(firebaseConfig);
         }
 
         function resetForm() {
-            document.getElementById('familyForm').reset();
-            document.getElementById('editId').value = '';
-            document.getElementById('parentId').value = '';
-            document.getElementById('photoPreview').innerHTML = '<span>📷</span>';
-            document.getElementById('meninggalGroup').style.display = 'none';
-            document.getElementById('pasanganContainer').innerHTML = '';
-            document.getElementById('hapusBtn').style.display = 'none';
+            const form = document.getElementById('familyForm');
+            if (form) form.reset();
+            
+            const editId = document.getElementById('editId');
+            if (editId) editId.value = '';
+            
+            const parentId = document.getElementById('parentId');
+            if (parentId) parentId.value = '';
+            
+            const photoPreview = document.getElementById('photoPreview');
+            if (photoPreview) photoPreview.innerHTML = '<span>📷</span>';
+            
+            const meninggalGroup = document.getElementById('meninggalGroup');
+            if (meninggalGroup) meninggalGroup.style.display = 'none';
+            
+            const pasanganContainer = document.getElementById('pasanganContainer');
+            if (pasanganContainer) pasanganContainer.innerHTML = '';
+            
+            const hapusBtn = document.getElementById('hapusBtn');
+            if (hapusBtn) hapusBtn.style.display = 'none';
+            
             currentEditId = null;
             currentParentId = null;
         }
 
         function tambahPasangan() {
             const container = document.getElementById('pasanganContainer');
+            if (!container) return;
+            
             const div = document.createElement('div');
             div.className = 'spouse-row';
             div.innerHTML = `
@@ -1166,7 +1194,10 @@ const app = initializeApp(firebaseConfig);
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('photoPreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    const photoPreview = document.getElementById('photoPreview');
+                    if (photoPreview) {
+                        photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    }
                 };
                 reader.readAsDataURL(file);
             }
@@ -1175,13 +1206,18 @@ const app = initializeApp(firebaseConfig);
         function simpanData(event) {
             event.preventDefault();
 
-            const nama = document.getElementById('nama').value.trim().toUpperCase();
+            const namaInput = document.getElementById('nama');
+            const genderSelect = document.getElementById('gender');
+            
+            if (!namaInput || !genderSelect) return;
+            
+            const nama = namaInput.value.trim().toUpperCase();
             if (!nama) {
                 showToast('Nama harus diisi', 'error');
                 return;
             }
 
-            const gender = document.getElementById('gender').value;
+            const gender = genderSelect.value;
             if (!gender) {
                 showToast('Jenis kelamin harus dipilih', 'error');
                 return;
@@ -1200,28 +1236,32 @@ const app = initializeApp(firebaseConfig);
                 id: id,
                 nama: nama,
                 gender: gender,
-                status: document.getElementById('status').value,
-                tahunMeninggal: document.getElementById('tahunMeninggal').value || null,
-                keteranganMeninggal: document.getElementById('keteranganMeninggal').value || null,
-                tempatLahir: document.getElementById('tempatLahir').value || null,
-                tanggalLahir: document.getElementById('tanggalLahir').value || null,
-                alamat: document.getElementById('alamat').value || null,
-                lat: document.getElementById('mapLat').value || '-6.2088',
-                lng: document.getElementById('mapLng').value || '106.8456',
-                telepon: document.getElementById('telepon').value || null,
-                pendidikan: document.getElementById('pendidikan').value || null,
-                pekerjaan: document.getElementById('pekerjaan').value || null,
-                keterangan: document.getElementById('keterangan').value || null,
+                status: document.getElementById('status')?.value || 'hidup',
+                tahunMeninggal: document.getElementById('tahunMeninggal')?.value || null,
+                keteranganMeninggal: document.getElementById('keteranganMeninggal')?.value || null,
+                tempatLahir: document.getElementById('tempatLahir')?.value || null,
+                tanggalLahir: document.getElementById('tanggalLahir')?.value || null,
+                alamat: document.getElementById('alamat')?.value || null,
+                lat: document.getElementById('mapLat')?.value || '-6.2088',
+                lng: document.getElementById('mapLng')?.value || '106.8456',
+                telepon: document.getElementById('telepon')?.value || null,
+                pendidikan: document.getElementById('pendidikan')?.value || null,
+                pekerjaan: document.getElementById('pekerjaan')?.value || null,
+                keterangan: document.getElementById('keterangan')?.value || null,
                 pasangan: [],
                 anak: []
             };
 
             // Proses pasangan
-            const spouseInputs = document.querySelectorAll('.spouse-row');
-            spouseInputs.forEach((row, index) => {
-                const spouseName = row.querySelector('.spouse-name')?.value.trim().toUpperCase();
+            const spouseRows = document.querySelectorAll('.spouse-row');
+            spouseRows.forEach((row, index) => {
+                const spouseNameInput = row.querySelector('.spouse-name');
+                if (!spouseNameInput) return;
+                
+                const spouseName = spouseNameInput.value.trim().toUpperCase();
                 if (spouseName) {
-                    const spouseStatus = row.querySelector('.spouse-status')?.value || 'hidup';
+                    const spouseStatusSelect = row.querySelector('.spouse-status');
+                    const spouseStatus = spouseStatusSelect ? spouseStatusSelect.value : 'hidup';
                     const spouseId = 'pasangan_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substr(2, 5);
                     
                     // Buat data pasangan
@@ -1239,7 +1279,8 @@ const app = initializeApp(firebaseConfig);
             });
 
             // Proses foto
-            const photoFile = document.getElementById('photoInput').files[0];
+            const photoInput = document.getElementById('photoInput');
+            const photoFile = photoInput && photoInput.files ? photoInput.files[0] : null;
             
             const prosesSimpan = (fotoData) => {
                 if (fotoData) anggota.foto = fotoData;
@@ -1248,6 +1289,7 @@ const app = initializeApp(firebaseConfig);
                 }
 
                 // Simpan anggota
+                if (!keluargaData.anggota) keluargaData.anggota = {};
                 keluargaData.anggota[id] = anggota;
 
                 // Update relasi dengan parent
@@ -1293,50 +1335,91 @@ const app = initializeApp(firebaseConfig);
             if (!anggota) return;
 
             currentEditId = id;
-            document.getElementById('modalTitle').textContent = 'Edit ' + anggota.nama;
-            document.getElementById('editId').value = id;
-            document.getElementById('nama').value = anggota.nama;
-            document.getElementById('gender').value = anggota.gender || '';
-            document.getElementById('status').value = anggota.status || 'hidup';
-            document.getElementById('tahunMeninggal').value = anggota.tahunMeninggal || '';
-            document.getElementById('keteranganMeninggal').value = anggota.keteranganMeninggal || '';
-            document.getElementById('tempatLahir').value = anggota.tempatLahir || '';
-            document.getElementById('tanggalLahir').value = anggota.tanggalLahir || '';
-            document.getElementById('alamat').value = anggota.alamat || '';
-            document.getElementById('mapLat').value = anggota.lat || '-6.2088';
-            document.getElementById('mapLng').value = anggota.lng || '106.8456';
-            document.getElementById('telepon').value = anggota.telepon || '';
-            document.getElementById('pendidikan').value = anggota.pendidikan || '';
-            document.getElementById('pekerjaan').value = anggota.pekerjaan || '';
-            document.getElementById('keterangan').value = anggota.keterangan || '';
+            
+            const modalTitle = document.getElementById('modalTitle');
+            if (modalTitle) modalTitle.textContent = 'Edit ' + anggota.nama;
+            
+            const editId = document.getElementById('editId');
+            if (editId) editId.value = id;
+            
+            const nama = document.getElementById('nama');
+            if (nama) nama.value = anggota.nama;
+            
+            const gender = document.getElementById('gender');
+            if (gender) gender.value = anggota.gender || '';
+            
+            const status = document.getElementById('status');
+            if (status) status.value = anggota.status || 'hidup';
+            
+            const tahunMeninggal = document.getElementById('tahunMeninggal');
+            if (tahunMeninggal) tahunMeninggal.value = anggota.tahunMeninggal || '';
+            
+            const keteranganMeninggal = document.getElementById('keteranganMeninggal');
+            if (keteranganMeninggal) keteranganMeninggal.value = anggota.keteranganMeninggal || '';
+            
+            const tempatLahir = document.getElementById('tempatLahir');
+            if (tempatLahir) tempatLahir.value = anggota.tempatLahir || '';
+            
+            const tanggalLahir = document.getElementById('tanggalLahir');
+            if (tanggalLahir) tanggalLahir.value = anggota.tanggalLahir || '';
+            
+            const alamat = document.getElementById('alamat');
+            if (alamat) alamat.value = anggota.alamat || '';
+            
+            const mapLat = document.getElementById('mapLat');
+            if (mapLat) mapLat.value = anggota.lat || '-6.2088';
+            
+            const mapLng = document.getElementById('mapLng');
+            if (mapLng) mapLng.value = anggota.lng || '106.8456';
+            
+            const telepon = document.getElementById('telepon');
+            if (telepon) telepon.value = anggota.telepon || '';
+            
+            const pendidikan = document.getElementById('pendidikan');
+            if (pendidikan) pendidikan.value = anggota.pendidikan || '';
+            
+            const pekerjaan = document.getElementById('pekerjaan');
+            if (pekerjaan) pekerjaan.value = anggota.pekerjaan || '';
+            
+            const keterangan = document.getElementById('keterangan');
+            if (keterangan) keterangan.value = anggota.keterangan || '';
 
-            if (anggota.foto) {
-                document.getElementById('photoPreview').innerHTML = `<img src="${anggota.foto}" alt="Preview">`;
-            } else {
-                document.getElementById('photoPreview').innerHTML = '<span>📷</span>';
+            const photoPreview = document.getElementById('photoPreview');
+            if (photoPreview) {
+                if (anggota.foto) {
+                    photoPreview.innerHTML = `<img src="${anggota.foto}" alt="Preview">`;
+                } else {
+                    photoPreview.innerHTML = '<span>📷</span>';
+                }
             }
 
             toggleStatusMeninggal();
 
             // Tampilkan pasangan yang ada
-            document.getElementById('pasanganContainer').innerHTML = '';
-            if (anggota.pasangan && anggota.pasangan.length > 0) {
-                anggota.pasangan.forEach(pasanganId => {
-                    const pasangan = keluargaData.anggota[pasanganId];
-                    if (pasangan) {
-                        const div = document.createElement('div');
-                        div.className = 'spouse-row';
-                        div.innerHTML = `
-                            <input type="text" value="${pasangan.nama}" readonly style="width:100%; background:var(--gray-100);">
-                            <div style="font-size:0.8rem; margin-top:0.25rem;">${pasangan.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Hidup'}</div>
-                        `;
-                        document.getElementById('pasanganContainer').appendChild(div);
-                    }
-                });
+            const pasanganContainer = document.getElementById('pasanganContainer');
+            if (pasanganContainer) {
+                pasanganContainer.innerHTML = '';
+                if (anggota.pasangan && anggota.pasangan.length > 0) {
+                    anggota.pasangan.forEach(pasanganId => {
+                        const pasangan = keluargaData.anggota[pasanganId];
+                        if (pasangan) {
+                            const div = document.createElement('div');
+                            div.className = 'spouse-row';
+                            div.innerHTML = `
+                                <input type="text" value="${pasangan.nama}" readonly style="width:100%; background:var(--gray-100);">
+                                <div style="font-size:0.8rem; margin-top:0.25rem;">${pasangan.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Hidup'}</div>
+                            `;
+                            pasanganContainer.appendChild(div);
+                        }
+                    });
+                }
             }
 
-            document.getElementById('hapusBtn').style.display = 'block';
-            document.getElementById('formModal').style.display = 'block';
+            const hapusBtn = document.getElementById('hapusBtn');
+            if (hapusBtn) hapusBtn.style.display = 'block';
+            
+            const formModal = document.getElementById('formModal');
+            if (formModal) formModal.style.display = 'block';
             
             setTimeout(() => {
                 initMap(parseFloat(anggota.lat) || -6.2088, parseFloat(anggota.lng) || 106.8456);
@@ -1398,7 +1481,7 @@ const app = initializeApp(firebaseConfig);
                         ${!anggota.foto ? `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:2rem;">${getInitials(anggota.nama)}</div>` : ''}
                     </div>
                     <h3 style="margin-top:0.5rem;">${anggota.nama}</h3>
-                    <div>
+                    <div style="margin-top:0.5rem;">
                         <span class="badge" style="background:${anggota.gender === 'L' ? 'var(--primary)' : 'var(--accent)'}">${anggota.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</span>
                         <span class="badge" style="background:${anggota.status === 'meninggal' ? 'var(--danger)' : 'var(--success)'}">${anggota.status === 'meninggal' ? 'Meninggal' : 'Masih Hidup'}</span>
                     </div>
@@ -1448,12 +1531,17 @@ const app = initializeApp(firebaseConfig);
                 </div>
             `;
 
-            document.getElementById('detailContent').innerHTML = html;
-            document.getElementById('detailModal').style.display = 'block';
+            const detailContent = document.getElementById('detailContent');
+            if (detailContent) detailContent.innerHTML = html;
+            
+            const detailModal = document.getElementById('detailModal');
+            if (detailModal) detailModal.style.display = 'block';
         }
 
         function tutupModal() {
-            document.getElementById('formModal').style.display = 'none';
+            const formModal = document.getElementById('formModal');
+            if (formModal) formModal.style.display = 'none';
+            
             if (map) {
                 map.remove();
                 map = null;
@@ -1461,7 +1549,8 @@ const app = initializeApp(firebaseConfig);
         }
 
         function tutupDetailModal() {
-            document.getElementById('detailModal').style.display = 'none';
+            const detailModal = document.getElementById('detailModal');
+            if (detailModal) detailModal.style.display = 'none';
         }
 
         // ==================== MAP FUNCTIONS ====================
@@ -1482,20 +1571,24 @@ const app = initializeApp(firebaseConfig);
             
             marker.on('dragend', function(e) {
                 const pos = e.target.getLatLng();
-                document.getElementById('mapLat').value = pos.lat.toFixed(6);
-                document.getElementById('mapLng').value = pos.lng.toFixed(6);
+                const mapLat = document.getElementById('mapLat');
+                const mapLng = document.getElementById('mapLng');
+                if (mapLat) mapLat.value = pos.lat.toFixed(6);
+                if (mapLng) mapLng.value = pos.lng.toFixed(6);
             });
 
             map.on('click', function(e) {
                 const pos = e.latlng;
                 marker.setLatLng(pos);
-                document.getElementById('mapLat').value = pos.lat.toFixed(6);
-                document.getElementById('mapLng').value = pos.lng.toFixed(6);
+                const mapLat = document.getElementById('mapLat');
+                const mapLng = document.getElementById('mapLng');
+                if (mapLat) mapLat.value = pos.lat.toFixed(6);
+                if (mapLng) mapLng.value = pos.lng.toFixed(6);
             });
         }
 
         function cariLokasi() {
-            const alamat = document.getElementById('alamat').value;
+            const alamat = document.getElementById('alamat')?.value;
             if (!alamat) {
                 showToast('Masukkan alamat dulu', 'error');
                 return;
@@ -1509,8 +1602,12 @@ const app = initializeApp(firebaseConfig);
                     if (data && data[0]) {
                         const lat = parseFloat(data[0].lat);
                         const lng = parseFloat(data[0].lon);
-                        document.getElementById('mapLat').value = lat.toFixed(6);
-                        document.getElementById('mapLng').value = lng.toFixed(6);
+                        
+                        const mapLat = document.getElementById('mapLat');
+                        const mapLng = document.getElementById('mapLng');
+                        
+                        if (mapLat) mapLat.value = lat.toFixed(6);
+                        if (mapLng) mapLng.value = lng.toFixed(6);
                         
                         if (map && marker) {
                             map.setView([lat, lng], 15);
@@ -1569,16 +1666,23 @@ const app = initializeApp(firebaseConfig);
             }
             
             html += '</div></div>';
-            document.getElementById('diagramContent').innerHTML = html;
-            document.getElementById('diagramModal').style.display = 'block';
+            
+            const diagramContent = document.getElementById('diagramContent');
+            if (diagramContent) diagramContent.innerHTML = html;
+            
+            const diagramModal = document.getElementById('diagramModal');
+            if (diagramModal) diagramModal.style.display = 'block';
         }
 
         function tutupDiagram() {
-            document.getElementById('diagramModal').style.display = 'none';
+            const diagramModal = document.getElementById('diagramModal');
+            if (diagramModal) diagramModal.style.display = 'none';
         }
 
         function downloadDiagram() {
             const content = document.getElementById('diagramContent');
+            if (!content) return;
+            
             html2canvas(content).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'family-tree.png';
@@ -1594,12 +1698,18 @@ const app = initializeApp(firebaseConfig);
         }
 
         function toggleStatusMeninggal() {
-            const status = document.getElementById('status').value;
-            document.getElementById('meninggalGroup').style.display = status === 'meninggal' ? 'block' : 'none';
+            const status = document.getElementById('status')?.value;
+            const meninggalGroup = document.getElementById('meninggalGroup');
+            if (meninggalGroup) {
+                meninggalGroup.style.display = status === 'meninggal' ? 'block' : 'none';
+            }
         }
 
         function searchFamily() {
-            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) return;
+            
+            const keyword = searchInput.value.toLowerCase().trim();
             if (!keyword) {
                 resetSearch();
                 return;
@@ -1622,7 +1732,9 @@ const app = initializeApp(firebaseConfig);
         }
 
         function resetSearch() {
-            document.getElementById('searchInput').value = '';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+            
             document.querySelectorAll('.family-card').forEach(card => card.style.display = '');
             document.querySelectorAll('.photo-item').forEach(photo => photo.style.display = '');
         }
@@ -1705,6 +1817,8 @@ const app = initializeApp(firebaseConfig);
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
+            if (!toast) return;
+            
             toast.textContent = message;
             toast.className = 'toast';
             if (type === 'error') toast.classList.add('error');
