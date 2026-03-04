@@ -12,10 +12,12 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Font Awesome -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         * {
             margin: 0;
@@ -26,25 +28,40 @@
         :root {
             --primary: #4361ee;
             --primary-dark: #3a56d4;
+            --primary-light: #4895ef;
             --secondary: #7209b7;
             --accent: #f72585;
             --success: #4cc9f0;
             --warning: #f8961e;
             --danger: #f94144;
+            --info: #4361ee;
+            --dark: #1e293b;
+            --light: #f8f9fa;
             --gray-100: #f1f5f9;
             --gray-200: #e2e8f0;
             --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
             --gray-800: #1e293b;
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
             --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
             --radius-full: 9999px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(145deg, #0b1120 0%, #19223f 100%);
             min-height: 100vh;
             padding: 1rem;
+            color: #fff;
         }
 
         .container {
@@ -52,61 +69,90 @@
             margin: 0 auto;
         }
 
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: linear-gradient(145deg, #0b1120, #19223f);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 10000;
             color: white;
             flex-direction: column;
-            gap: 1rem;
+            gap: 2rem;
         }
 
         .loading-spinner-large {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
+            width: 80px;
+            height: 80px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
             border-radius: 50%;
-            border-top-color: white;
+            border-top-color: var(--primary);
+            border-right-color: var(--accent);
             animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
+        /* Clock Container */
         .clock-container {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-full);
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 2rem;
             display: inline-flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
             color: white;
             flex-wrap: wrap;
+            box-shadow: var(--shadow-lg);
         }
 
+        .clock-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .clock-item i {
+            color: var(--primary-light);
+            font-size: 1.2rem;
+        }
+
+        /* Sync Indicator */
         .sync-indicator {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: white;
-            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
             border-radius: var(--radius-full);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             display: flex;
             align-items: center;
             gap: 0.75rem;
             z-index: 9999;
             border-left: 4px solid var(--success);
+            color: var(--dark);
+            font-weight: 500;
+            animation: slideInRight 0.3s ease;
         }
 
         .sync-indicator.syncing { border-left-color: var(--warning); }
@@ -121,208 +167,493 @@
             animation: spin 1s linear infinite;
         }
 
+        /* Header */
         .header {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
             color: white;
+            box-shadow: var(--shadow-xl);
         }
 
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--gray-300);
+            font-size: 1.1rem;
+        }
+
+        /* Stats Cards */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: white;
-            padding: 1rem;
-            border-radius: var(--radius-lg);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
             text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(67, 97, 238, 0.3);
         }
 
         .stat-card .number {
-            font-size: 1.8rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: var(--primary);
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
         }
 
-        .family-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-lg);
+        .stat-card .label {
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .family-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 0.25rem 1rem;
-            border-radius: var(--radius-full);
-        }
-
-        .couple-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .couple-container::after {
-            content: '❤️';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 0.5rem;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .parent-item {
-            flex: 0 1 250px;
-            background: var(--gray-100);
-            padding: 1rem;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s;
-            border-top: 4px solid;
-        }
-
-        .parent-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .parent-item.male { border-top-color: var(--primary); }
-        .parent-item.female { border-top-color: var(--accent); }
-
-        .small-photo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin: 0 auto 0.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            background-size: cover;
-            background-position: center;
-            border: 3px solid white;
-        }
-
-        .children-list {
-            background: var(--gray-100);
-            border-radius: var(--radius-lg);
-            padding: 1rem;
-        }
-
-        .child-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
-            background: white;
-            margin-bottom: 0.5rem;
-            border-radius: var(--radius-lg);
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .child-item:hover {
-            transform: translateX(5px);
-            border-left: 4px solid var(--primary);
-        }
-
-        .child-number {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.75rem;
-            font-weight: bold;
-        }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .photo-item {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .photo-placeholder {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            background-size: cover;
-            background-position: center;
-            border: 3px solid white;
-        }
-
+        /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             border: none;
             border-radius: var(--radius-full);
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: white;
-            color: var(--primary);
-            transition: all 0.3s;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95rem;
         }
 
         .btn:hover {
             transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
             box-shadow: var(--shadow-lg);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
         }
 
         .btn-danger {
-            background: var(--danger);
-            color: white;
+            background: linear-gradient(135deg, var(--danger), #f87171);
+            border: none;
         }
 
+        /* Search Box */
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .search-box button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 0.75rem 1.5rem;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-box button:hover {
+            transform: scale(0.95);
+        }
+
+        /* Family Card */
+        .family-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s ease;
+        }
+
+        .family-card:hover {
+            border-color: rgba(67, 97, 238, 0.3);
+        }
+
+        .family-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .family-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Couple Container */
+        .couple-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .couple-container::after {
+            content: '💍';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 1rem;
+            border-radius: 50%;
+            font-size: 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Parent/Couple Item */
+        .parent-item {
+            flex: 0 1 280px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: var(--radius-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parent-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .parent-item.male::before { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+        .parent-item.female::before { background: linear-gradient(90deg, var(--accent), #ff6b6b); }
+
+        .parent-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Photo Styles */
+        .photo-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+        }
+
+        .photo-frame {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 600;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .photo-frame.has-photo {
+            border: 4px solid var(--success);
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .status-badge.meninggal {
+            background: var(--danger);
+        }
+
+        .status-badge.cerai {
+            background: var(--warning);
+        }
+
+        .status-badge.duda,
+        .status-badge.janda {
+            background: var(--info);
+        }
+
+        /* Marriage Status Indicator */
+        .marriage-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .marriage-status.menikah {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .marriage-status.cerai {
+            background: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .marriage-status.duda,
+        .marriage-status.janda {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+
+        /* Children List */
+        .children-list {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .children-list h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .child-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 0.75rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .child-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .child-number {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .child-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid var(--primary);
+        }
+
+        .child-info {
+            flex: 1;
+        }
+
+        .child-name {
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .child-meta {
+            font-size: 0.85rem;
+            color: var(--gray-400);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Gallery */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .photo-item {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-photo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .photo-item:hover .gallery-photo {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .photo-item span {
+            display: block;
+            margin-top: 0.5rem;
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -330,57 +661,100 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
             z-index: 1000;
             overflow-y: auto;
             padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             margin: 2rem auto;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            color: white;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .close-btn {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 2rem;
             cursor: pointer;
-            color: var(--gray-800);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Form Styles */
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.25rem;
-            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-300);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 0.5rem;
-            border: 2px solid var(--gray-200);
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-lg);
             font-size: 1rem;
+            color: white;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus,
@@ -388,20 +762,45 @@
         .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--gray-500);
+        }
+
+        .form-group select option {
+            background: var(--dark);
+            color: white;
+        }
+
+        /* Photo Preview in Form */
+        .photo-preview-container {
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
         .photo-preview {
-            width: 120px;
-            height: 120px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             margin: 0 auto 1rem;
-            background: var(--gray-100);
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px dashed var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px dashed var(--primary);
             overflow: hidden;
             cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .photo-preview:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
         }
 
         .photo-preview img {
@@ -410,43 +809,221 @@
             object-fit: cover;
         }
 
+        .photo-preview span {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+
+        .photo-preview.has-photo span {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Spouse Row */
+        .spouse-row {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .spouse-row input,
+        .spouse-row select {
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .remove-spouse {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--danger);
+            border: 2px solid white;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .remove-spouse:hover {
+            transform: scale(1.1);
+            background: #ff0000;
+        }
+
+        /* Map Container */
         .map-container {
-            height: 200px;
+            height: 250px;
             width: 100%;
             border-radius: var(--radius-lg);
-            border: 2px solid var(--gray-200);
+            border: 2px solid var(--primary);
             margin: 0.5rem 0;
+            z-index: 1;
         }
 
-        .spouse-row {
-            background: #fff5f5;
-            padding: 0.75rem;
+        /* Marriage Status Group */
+        .marriage-status-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .marriage-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-lg);
-            margin-bottom: 0.5rem;
-            border: 1px solid var(--accent);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
+        .marriage-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .marriage-option.selected {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: white;
+        }
+
+        .marriage-option i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .marriage-option span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Detail Modal */
+        .detail-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            background-size: cover;
+            background-position: center;
+            border: 5px solid var(--primary);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .detail-avatar::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .detail-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            margin: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
-            bottom: 1rem;
+            bottom: 2rem;
             left: 50%;
             transform: translateX(-50%);
-            background: white;
-            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
             border-radius: var(--radius-full);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             display: none;
             z-index: 10001;
             border-left: 4px solid var(--success);
+            color: var(--dark);
+            font-weight: 500;
+            animation: slideUp 0.3s ease;
         }
 
         .toast.error { border-left-color: var(--danger); }
         .toast.warning { border-left-color: var(--warning); }
 
-        @media (max-width: 640px) {
+        /* Responsive */
+        @media (max-width: 768px) {
             .stats-container { grid-template-columns: repeat(2, 1fr); }
             .couple-container { gap: 1rem; }
-            .couple-container::after { font-size: 1rem; padding: 0.25rem; }
+            .couple-container::after { font-size: 1.5rem; padding: 0.75rem; }
+            .parent-item { flex: 0 1 200px; }
+            .photo-frame { width: 100px; height: 100px; font-size: 2rem; }
+            .header h1 { font-size: 1.8rem; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -454,34 +1031,34 @@
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner-large"></div>
-        <div>Memuat data keluarga...</div>
+        <div class="loading-text">Memuat data keluarga...</div>
     </div>
 
     <div class="container">
         <!-- Clock -->
-        <div class="clock-container">
+        <div class="clock-container animate__animated animate__fadeInDown">
             <div class="clock-item">
-                <i class="fas fa-calendar"></i>
+                <i class="fas fa-calendar-alt"></i>
                 <span id="currentDate"></span>
             </div>
             <div class="clock-item">
                 <i class="fas fa-clock"></i>
-                <span class="clock-time" id="currentTime"></span>
+                <span id="currentTime"></span>
             </div>
             <div class="clock-item">
-                <i class="fas fa-mosque"></i>
+                <i class="fas fa-moon"></i>
                 <span id="hijriDate"></span>
             </div>
         </div>
 
         <!-- Sync Indicator -->
         <div id="syncIndicator" class="sync-indicator">
-            <i class="fas fa-cloud"></i>
+            <i class="fas fa-cloud-upload-alt"></i>
             <span>Tersimpan</span>
         </div>
 
         <!-- Header -->
-        <div class="header">
+        <div class="header animate__animated animate__fadeInUp">
             <h1>🌳 BANI ALI IMRON</h1>
             <p>Silsilah Keluarga - Ali Imron & Asmah</p>
             <div class="action-buttons">
@@ -498,7 +1075,7 @@
                     <i class="fas fa-upload"></i> Import
                 </button>
                 <button class="btn" onclick="resetData()">
-                    <i class="fas fa-undo"></i> Reset
+                    <i class="fas fa-undo-alt"></i> Reset
                 </button>
             </div>
         </div>
@@ -507,43 +1084,43 @@
         <div class="stats-container">
             <div class="stat-card">
                 <div class="number" id="totalAnggota">0</div>
-                <div>Total Anggota</div>
+                <div class="label">Total Anggota</div>
             </div>
             <div class="stat-card">
                 <div class="number" id="totalGenerasi">0</div>
-                <div>Generasi</div>
+                <div class="label">Generasi</div>
             </div>
             <div class="stat-card">
                 <div class="number" id="totalKeluarga">0</div>
-                <div>Keluarga</div>
+                <div class="label">Keluarga</div>
             </div>
             <div class="stat-card">
                 <div class="number" id="totalHidup">0</div>
-                <div>Masih Hidup</div>
+                <div class="label">Masih Hidup</div>
             </div>
         </div>
 
         <!-- Search -->
-        <div class="action-buttons">
-            <input type="text" id="searchInput" placeholder="Cari nama..." style="flex:1; padding:0.5rem 1rem; border-radius:var(--radius-full); border:none;">
-            <button class="btn" onclick="searchFamily()"><i class="fas fa-search"></i> Cari</button>
-            <button class="btn" onclick="resetSearch()"><i class="fas fa-times"></i> Reset</button>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Cari nama anggota keluarga...">
+            <button onclick="searchFamily()"><i class="fas fa-search"></i> Cari</button>
+            <button onclick="resetSearch()" style="background: linear-gradient(135deg, var(--gray-600), var(--gray-800));"><i class="fas fa-times"></i></button>
         </div>
 
         <!-- Keluarga Inti -->
         <div class="family-card" id="keluargaInti">
             <div class="family-header">
-                <h2>👑 Pendiri Bani Ali Imron</h2>
+                <h2><i class="fas fa-crown" style="color: gold; margin-right: 0.5rem;"></i>Pendiri Bani Ali Imron</h2>
                 <span class="badge">Generasi 1</span>
             </div>
             
             <div class="couple-container" id="pendiriContainer"></div>
 
             <div class="children-list">
-                <h3>👶 Anak-anak (Generasi 2)</h3>
+                <h3><i class="fas fa-baby"></i> Anak-anak (Generasi 2)</h3>
                 <div id="anakContainer"></div>
-                <button class="btn btn-primary" onclick="tambahAnak('ALI_IMRON')" style="margin-top:0.5rem; width:100%;">
-                    <i class="fas fa-plus"></i> Tambah Anak
+                <button class="btn btn-primary" onclick="tambahAnak('ALI_IMRON')" style="margin-top:1rem; width:100%;">
+                    <i class="fas fa-plus-circle"></i> Tambah Anak
                 </button>
             </div>
         </div>
@@ -554,8 +1131,8 @@
         <!-- Gallery -->
         <div class="family-card">
             <div class="family-header">
-                <h2>📸 Galeri Keluarga</h2>
-                <button class="btn" onclick="openBulkUpload()"><i class="fas fa-cloud-upload-alt"></i> Upload</button>
+                <h2><i class="fas fa-images" style="margin-right: 0.5rem;"></i>Galeri Keluarga</h2>
+                <button class="btn" onclick="openBulkUpload()"><i class="fas fa-cloud-upload-alt"></i> Upload Foto</button>
             </div>
             <div class="photo-grid" id="photoGallery"></div>
         </div>
@@ -566,113 +1143,153 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle">Tambah Anggota Keluarga</h3>
-                <button class="close-btn" onclick="tutupModal()">&times;</button>
+                <button class="close-btn" onclick="tutupModal()"><i class="fas fa-times"></i></button>
             </div>
             
             <form id="familyForm" onsubmit="simpanData(event)">
                 <input type="hidden" id="editId">
                 <input type="hidden" id="parentId">
                 
-                <div style="text-align:center;">
+                <!-- Photo Upload -->
+                <div class="photo-preview-container">
                     <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
                         <span>📷</span>
                     </div>
                     <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)" style="display:none;">
-                    <button type="button" class="btn" onclick="document.getElementById('photoInput').click()">Pilih Foto</button>
+                    <button type="button" class="upload-btn" onclick="document.getElementById('photoInput').click()">
+                        <i class="fas fa-camera"></i> Pilih Foto
+                    </button>
                 </div>
 
+                <!-- Nama -->
                 <div class="form-group">
-                    <label>Nama Lengkap *</label>
-                    <input type="text" id="nama" required placeholder="Masukkan nama" autocomplete="off">
+                    <label><i class="fas fa-user"></i> Nama Lengkap *</label>
+                    <input type="text" id="nama" required placeholder="Masukkan nama lengkap">
                 </div>
 
+                <!-- Jenis Kelamin -->
                 <div class="form-group">
-                    <label>Jenis Kelamin *</label>
+                    <label><i class="fas fa-venus-mars"></i> Jenis Kelamin *</label>
                     <select id="gender" required>
-                        <option value="">Pilih</option>
-                        <option value="L">Laki-laki</option>
-                        <option value="P">Perempuan</option>
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="L">👨 Laki-laki</option>
+                        <option value="P">👩 Perempuan</option>
                     </select>
                 </div>
 
+                <!-- Status Hidup -->
                 <div class="form-group">
-                    <label>Status</label>
+                    <label><i class="fas fa-heartbeat"></i> Status</label>
                     <select id="status" onchange="toggleStatusMeninggal()">
-                        <option value="hidup">Masih Hidup</option>
-                        <option value="meninggal">Meninggal Dunia</option>
+                        <option value="hidup">❤️ Masih Hidup</option>
+                        <option value="meninggal">✝️ Meninggal Dunia</option>
                     </select>
                 </div>
 
+                <!-- Group Meninggal -->
                 <div id="meninggalGroup" style="display:none;">
                     <div class="form-group">
-                        <label>Tahun Meninggal</label>
+                        <label><i class="fas fa-calendar-times"></i> Tahun Meninggal</label>
                         <input type="text" id="tahunMeninggal" placeholder="Contoh: 2020">
                     </div>
                     <div class="form-group">
-                        <label>Keterangan Meninggal</label>
-                        <textarea id="keteranganMeninggal" placeholder="Sebab meninggal"></textarea>
+                        <label><i class="fas fa-info-circle"></i> Keterangan Meninggal</label>
+                        <textarea id="keteranganMeninggal" placeholder="Sebab meninggal / lokasi pemakaman"></textarea>
                     </div>
                 </div>
 
+                <!-- Status Pernikahan -->
                 <div class="form-group">
-                    <label>Tempat Lahir</label>
+                    <label><i class="fas fa-heart"></i> Status Pernikahan</label>
+                    <div class="marriage-status-group">
+                        <div class="marriage-option" onclick="pilihStatusPernikahan('menikah')" id="statusMenikah">
+                            <i class="fas fa-heart" style="color: #ff6b6b;"></i>
+                            <span>Menikah</span>
+                        </div>
+                        <div class="marriage-option" onclick="pilihStatusPernikahan('cerai')" id="statusCerai">
+                            <i class="fas fa-heart-broken" style="color: var(--warning);"></i>
+                            <span>Cerai</span>
+                        </div>
+                        <div class="marriage-option" onclick="pilihStatusPernikahan('duda')" id="statusDuda">
+                            <i class="fas fa-user-tie" style="color: var(--info);"></i>
+                            <span>Duda</span>
+                        </div>
+                        <div class="marriage-option" onclick="pilihStatusPernikahan('janda')" id="statusJanda">
+                            <i class="fas fa-female" style="color: var(--info);"></i>
+                            <span>Janda</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="statusPernikahan" value="menikah">
+                </div>
+
+                <!-- Tempat & Tanggal Lahir -->
+                <div class="form-group">
+                    <label><i class="fas fa-birthday-cake"></i> Tempat Lahir</label>
                     <input type="text" id="tempatLahir" placeholder="Tempat lahir">
                 </div>
 
                 <div class="form-group">
-                    <label>Tanggal Lahir</label>
+                    <label><i class="fas fa-calendar-alt"></i> Tanggal Lahir</label>
                     <input type="date" id="tanggalLahir">
                 </div>
 
+                <!-- Alamat -->
                 <div class="form-group">
-                    <label>Alamat</label>
+                    <label><i class="fas fa-map-marker-alt"></i> Alamat</label>
                     <textarea id="alamat" placeholder="Alamat lengkap"></textarea>
                 </div>
 
+                <!-- Peta -->
                 <div class="form-group">
-                    <label>Lokasi Peta</label>
+                    <label><i class="fas fa-map"></i> Lokasi Peta</label>
                     <div id="mapPreview" class="map-container"></div>
-                    <div style="display:flex; gap:0.25rem; margin-top:0.25rem;">
+                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
                         <input type="text" id="mapLat" placeholder="Latitude" value="-6.2088">
                         <input type="text" id="mapLng" placeholder="Longitude" value="106.8456">
-                        <button type="button" class="btn" onclick="cariLokasi()">Cari</button>
+                        <button type="button" class="btn" onclick="cariLokasi()"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
+                <!-- Kontak -->
                 <div class="form-group">
-                    <label>No. Telepon</label>
+                    <label><i class="fas fa-phone"></i> No. Telepon</label>
                     <input type="tel" id="telepon" placeholder="Contoh: 08123456789">
                 </div>
 
+                <!-- Pendidikan & Pekerjaan -->
                 <div class="form-group">
-                    <label>Pendidikan</label>
+                    <label><i class="fas fa-graduation-cap"></i> Pendidikan</label>
                     <input type="text" id="pendidikan" placeholder="Pendidikan terakhir">
                 </div>
 
                 <div class="form-group">
-                    <label>Pekerjaan</label>
+                    <label><i class="fas fa-briefcase"></i> Pekerjaan</label>
                     <input type="text" id="pekerjaan" placeholder="Pekerjaan">
                 </div>
 
+                <!-- Keterangan -->
                 <div class="form-group">
-                    <label>Keterangan</label>
+                    <label><i class="fas fa-sticky-note"></i> Keterangan</label>
                     <textarea id="keterangan" placeholder="Informasi tambahan"></textarea>
                 </div>
 
+                <!-- Pasangan Section -->
                 <div class="form-group" id="pasanganSection">
-                    <label>Pasangan (jika sudah menikah)</label>
+                    <label><i class="fas fa-heart" style="color: #ff6b6b;"></i> Pasangan</label>
                     <div id="pasanganContainer"></div>
-                    <button type="button" class="btn" onclick="tambahPasangan()" style="margin-top:0.25rem; width:100%;">
-                        <i class="fas fa-plus"></i> Tambah Pasangan
+                    <button type="button" class="btn" onclick="tambahPasangan()" style="margin-top:0.5rem; width:100%;">
+                        <i class="fas fa-plus-circle"></i> Tambah Pasangan
                     </button>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width:100%;">
-                    <i class="fas fa-save"></i> Simpan
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:1rem;">
+                    <i class="fas fa-save"></i> Simpan Data
                 </button>
                 
-                <button type="button" class="btn btn-danger" onclick="hapusAnggota()" style="width:100%; margin-top:0.5rem; display:none;" id="hapusBtn">
-                    <i class="fas fa-trash"></i> Hapus
+                <!-- Hapus Button -->
+                <button type="button" class="btn btn-danger" onclick="hapusAnggota()" style="width:100%; margin-top:1rem; padding:1rem; display:none;" id="hapusBtn">
+                    <i class="fas fa-trash-alt"></i> Hapus Anggota
                 </button>
             </form>
         </div>
@@ -680,13 +1297,13 @@
 
     <!-- Modal Diagram -->
     <div id="diagramModal" class="modal">
-        <div class="modal-content" style="max-width:800px;">
+        <div class="modal-content" style="max-width:900px;">
             <div class="modal-header">
-                <h3>Diagram Keluarga</h3>
-                <button class="close-btn" onclick="tutupDiagram()">&times;</button>
+                <h3><i class="fas fa-tree"></i> Diagram Keluarga</h3>
+                <button class="close-btn" onclick="tutupDiagram()"><i class="fas fa-times"></i></button>
             </div>
-            <div id="diagramContent" style="overflow-x:auto; padding:1rem; min-height:300px; font-family: monospace;"></div>
-            <button class="btn btn-primary" onclick="downloadDiagram()" style="width:100%; margin-top:1rem;">
+            <div id="diagramContent" style="overflow-x:auto; padding:2rem; min-height:400px; background: rgba(0,0,0,0.3); border-radius: var(--radius-lg); color: white; font-family: monospace; line-height: 2;"></div>
+            <button class="btn btn-primary" onclick="downloadDiagram()" style="width:100%; margin-top:1rem; padding:1rem;">
                 <i class="fas fa-download"></i> Download Diagram
             </button>
         </div>
@@ -694,10 +1311,10 @@
 
     <!-- Modal Detail -->
     <div id="detailModal" class="modal">
-        <div class="modal-content" style="max-width:600px;">
+        <div class="modal-content" style="max-width:700px;">
             <div class="modal-header">
-                <h3 id="detailTitle">Detail Anggota</h3>
-                <button class="close-btn" onclick="tutupDetailModal()">&times;</button>
+                <h3 id="detailTitle"><i class="fas fa-user-circle"></i> Profil Anggota</h3>
+                <button class="close-btn" onclick="tutupDetailModal()"><i class="fas fa-times"></i></button>
             </div>
             <div id="detailContent"></div>
         </div>
@@ -735,6 +1352,7 @@
                 nama: "ALI IMRON",
                 gender: "L",
                 status: "hidup",
+                statusPernikahan: "menikah",
                 pasangan: ["ASMAH"],
                 anak: []
             },
@@ -744,6 +1362,7 @@
                     nama: "ALI IMRON",
                     gender: "L",
                     status: "hidup",
+                    statusPernikahan: "menikah",
                     pasangan: ["ASMAH"],
                     anak: []
                 },
@@ -752,6 +1371,7 @@
                     nama: "ASMAH",
                     gender: "P",
                     status: "hidup",
+                    statusPernikahan: "menikah",
                     pasangan: ["ALI_IMRON"],
                     anak: []
                 }
@@ -882,7 +1502,7 @@
                 indicator.classList.add('error');
                 indicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>' + message + '</span>';
             } else {
-                indicator.innerHTML = '<i class="fas fa-cloud"></i><span>' + message + '</span>';
+                indicator.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><span>' + message + '</span>';
             }
         }
 
@@ -911,7 +1531,6 @@
         }
 
         function initHijriDate() {
-            // Simulasi tanggal Hijriah
             const hijriMonths = ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 
                                 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Sya\'ban', 
                                 'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'];
@@ -923,6 +1542,28 @@
             const hijriEl = document.getElementById('hijriDate');
             if (hijriEl) {
                 hijriEl.textContent = `${hijriDay} ${hijriMonths[hijriMonth]} ${hijriYear} H`;
+            }
+        }
+
+        // ==================== FUNGSI STATUS PERNIKAHAN ====================
+        function pilihStatusPernikahan(status) {
+            document.getElementById('statusPernikahan').value = status;
+            
+            // Hapus class selected dari semua option
+            document.querySelectorAll('.marriage-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Tambah class selected ke option yang dipilih
+            document.getElementById('status' + status.charAt(0).toUpperCase() + status.slice(1)).classList.add('selected');
+            
+            // Tampilkan/sembunyikan section pasangan berdasarkan status
+            const pasanganSection = document.getElementById('pasanganSection');
+            if (status === 'menikah') {
+                pasanganSection.style.display = 'block';
+            } else {
+                pasanganSection.style.display = 'none';
+                document.getElementById('pasanganContainer').innerHTML = '';
             }
         }
 
@@ -942,33 +1583,80 @@
             
             const pendiri = keluargaData.anggota[keluargaData.pendiri.id] || keluargaData.pendiri;
             
-            let html = `
-                <div class="parent-item male" onclick="lihatDetail('${pendiri.id}')">
-                    <div class="small-photo" style="${pendiri.foto ? `background-image:url('${pendiri.foto}')` : ''}">
-                        ${pendiri.foto ? '' : getInitials(pendiri.nama)}
-                    </div>
-                    <div class="name">${pendiri.nama}</div>
-                    <div>Suami</div>
-                </div>
-            `;
+            let html = renderParentItem(pendiri, 'Suami');
 
             if (pendiri.pasangan && pendiri.pasangan.length > 0) {
                 const istriId = pendiri.pasangan[0];
                 const istri = keluargaData.anggota[istriId];
                 if (istri) {
-                    html += `
-                        <div class="parent-item female" onclick="lihatDetail('${istriId}')">
-                            <div class="small-photo" style="${istri.foto ? `background-image:url('${istri.foto}')` : ''}">
-                                ${istri.foto ? '' : getInitials(istri.nama)}
-                            </div>
-                            <div class="name">${istri.nama}</div>
-                            <div>Istri</div>
-                        </div>
-                    `;
+                    html += renderParentItem(istri, 'Istri');
                 }
             }
 
             container.innerHTML = html;
+        }
+
+        function renderParentItem(anggota, peran) {
+            const genderClass = anggota.gender === 'L' ? 'male' : 'female';
+            const statusIcon = anggota.status === 'meninggal' ? '✝️' : '❤️';
+            const statusClass = anggota.status === 'meninggal' ? 'meninggal' : '';
+            
+            let marriageStatusHtml = '';
+            if (anggota.statusPernikahan) {
+                let icon = '';
+                let text = '';
+                switch(anggota.statusPernikahan) {
+                    case 'menikah': icon = '💍'; text = 'Menikah'; break;
+                    case 'cerai': icon = '💔'; text = 'Cerai'; break;
+                    case 'duda': icon = '👨'; text = 'Duda'; break;
+                    case 'janda': icon = '👩'; text = 'Janda'; break;
+                }
+                marriageStatusHtml = `<div class="marriage-status ${anggota.statusPernikahan}">${icon} ${text}</div>`;
+            }
+            
+            return `
+                <div class="parent-item ${genderClass}" onclick="lihatDetail('${anggota.id}')">
+                    <div class="photo-container">
+                        <div class="photo-frame ${anggota.foto ? 'has-photo' : ''}" style="${anggota.foto ? `background-image:url('${anggota.foto}')` : ''}">
+                            ${anggota.foto ? '' : getInitials(anggota.nama)}
+                        </div>
+                        <div class="status-badge ${statusClass}">${statusIcon}</div>
+                    </div>
+                    <div class="name" style="font-weight:600; font-size:1.2rem; margin-bottom:0.25rem;">${anggota.nama}</div>
+                    <div style="color:var(--gray-400); margin-bottom:0.5rem;">${peran}</div>
+                    ${marriageStatusHtml}
+                </div>
+            `;
+        }
+
+        function renderChildItem(anak, index) {
+            const statusIcon = anak.status === 'meninggal' ? '✝️' : '❤️';
+            const fotoStyle = anak.foto ? `background-image:url('${anak.foto}')` : '';
+            
+            let marriageIcon = '';
+            if (anak.statusPernikahan) {
+                switch(anak.statusPernikahan) {
+                    case 'menikah': marriageIcon = '💍'; break;
+                    case 'cerai': marriageIcon = '💔'; break;
+                    case 'duda': marriageIcon = '👨'; break;
+                    case 'janda': marriageIcon = '👩'; break;
+                }
+            }
+            
+            return `
+                <div class="child-item" onclick="lihatDetail('${anak.id}')">
+                    <div class="child-number">${index + 1}</div>
+                    <div class="child-photo" style="${fotoStyle}"></div>
+                    <div class="child-info">
+                        <div class="child-name">${anak.nama}</div>
+                        <div class="child-meta">
+                            <span>${statusIcon}</span>
+                            ${marriageIcon ? `<span>${marriageIcon}</span>` : ''}
+                            <span>${anak.pekerjaan || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function renderAnak() {
@@ -978,23 +1666,14 @@
             container.innerHTML = '';
 
             if (!keluargaData.pendiri || !keluargaData.pendiri.anak || keluargaData.pendiri.anak.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:gray;">Belum ada anak</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--gray-400); padding:2rem;">Belum ada anak</p>';
                 return;
             }
 
             keluargaData.pendiri.anak.forEach((anakId, index) => {
                 const anak = keluargaData.anggota[anakId];
                 if (!anak) return;
-
-                container.innerHTML += `
-                    <div class="child-item" onclick="lihatDetail('${anak.id}')">
-                        <div class="child-number">${index + 1}</div>
-                        <div class="child-info">
-                            <div class="child-name">${anak.nama}</div>
-                            <div style="font-size:0.8rem; color:gray;">${anak.pekerjaan || ''}</div>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += renderChildItem(anak, index);
             });
         }
 
@@ -1021,46 +1700,29 @@
                 let cardHtml = `
                     <div class="family-card">
                         <div class="family-header">
-                            <h2>👪 Keluarga ${anak.nama}</h2>
+                            <h2><i class="fas fa-users" style="margin-right:0.5rem;"></i>Keluarga ${anak.nama}</h2>
                             <span class="badge">Generasi 2</span>
                         </div>
                         
                         <div class="couple-container">
-                            <div class="parent-item ${anak.gender === 'L' ? 'male' : 'female'}" onclick="lihatDetail('${anak.id}')">
-                                <div class="small-photo" style="${anak.foto ? `background-image:url('${anak.foto}')` : ''}">
-                                    ${anak.foto ? '' : getInitials(anak.nama)}
-                                </div>
-                                <div class="name">${anak.nama}</div>
-                            </div>
-                            <div class="parent-item ${pasangan.gender === 'L' ? 'male' : 'female'}" onclick="lihatDetail('${pasangan.id}')">
-                                <div class="small-photo" style="${pasangan.foto ? `background-image:url('${pasangan.foto}')` : ''}">
-                                    ${pasangan.foto ? '' : getInitials(pasangan.nama)}
-                                </div>
-                                <div class="name">${pasangan.nama}</div>
-                            </div>
+                            ${renderParentItem(anak, anak.gender === 'L' ? 'Suami' : 'Istri')}
+                            ${renderParentItem(pasangan, pasangan.gender === 'L' ? 'Suami' : 'Istri')}
                         </div>
                 `;
 
                 if (anakKandung.length > 0) {
-                    cardHtml += `<div class="children-list"><h3>👶 Anak</h3>`;
+                    cardHtml += `<div class="children-list"><h3><i class="fas fa-baby"></i> Anak</h3>`;
                     anakKandung.forEach((cucu, idx) => {
-                        cardHtml += `
-                            <div class="child-item" onclick="lihatDetail('${cucu.id}')">
-                                <div class="child-number">${idx + 1}</div>
-                                <div class="child-info">
-                                    <div class="child-name">${cucu.nama}</div>
-                                </div>
-                            </div>
-                        `;
+                        cardHtml += renderChildItem(cucu, idx);
                     });
                     cardHtml += `</div>`;
                 } else {
-                    cardHtml += `<p style="text-align:center; color:gray; margin:1rem 0;">Belum memiliki anak</p>`;
+                    cardHtml += `<p style="text-align:center; color:var(--gray-400); padding:2rem;">Belum memiliki anak</p>`;
                 }
 
                 cardHtml += `
-                    <button class="btn btn-primary" onclick="tambahAnak('${anak.id}')" style="margin-top:0.5rem; width:100%;">
-                        <i class="fas fa-plus"></i> Tambah Anak
+                    <button class="btn btn-primary" onclick="tambahAnak('${anak.id}')" style="margin-top:1rem; width:100%;">
+                        <i class="fas fa-plus-circle"></i> Tambah Anak
                     </button>
                 </div>`;
 
@@ -1077,14 +1739,14 @@
             const fotoAnggota = Object.values(keluargaData.anggota || {}).filter(a => a && a.foto);
             
             if (fotoAnggota.length === 0) {
-                gallery.innerHTML = '<p style="text-align:center; color:gray;">Belum ada foto</p>';
+                gallery.innerHTML = '<p style="text-align:center; color:var(--gray-400); padding:2rem;">Belum ada foto</p>';
                 return;
             }
 
             fotoAnggota.forEach(anggota => {
                 gallery.innerHTML += `
                     <div class="photo-item" onclick="lihatDetail('${anggota.id}')">
-                        <div class="photo-placeholder" style="background-image:url('${anggota.foto}')"></div>
+                        <div class="gallery-photo" style="background-image:url('${anggota.foto}')"></div>
                         <span>${anggota.nama}</span>
                     </div>
                 `;
@@ -1130,11 +1792,17 @@
             if (hidupEl) hidupEl.textContent = hidup;
         }
 
+        function getInitials(nama) {
+            if (!nama) return '?';
+            return nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
         // ==================== CRUD OPERATIONS ====================
         function tambahAnggotaBaru() {
             resetForm();
             document.getElementById('modalTitle').textContent = 'Tambah Anggota Baru';
             document.getElementById('formModal').style.display = 'block';
+            pilihStatusPernikahan('menikah');
             setTimeout(() => initMap(-6.2088, 106.8456), 300);
         }
 
@@ -1143,6 +1811,7 @@
             currentParentId = parentId;
             document.getElementById('modalTitle').textContent = 'Tambah Anak';
             document.getElementById('formModal').style.display = 'block';
+            pilihStatusPernikahan('menikah');
             setTimeout(() => initMap(-6.2088, 106.8456), 300);
         }
 
@@ -1157,7 +1826,10 @@
             if (parentId) parentId.value = '';
             
             const photoPreview = document.getElementById('photoPreview');
-            if (photoPreview) photoPreview.innerHTML = '<span>📷</span>';
+            if (photoPreview) {
+                photoPreview.innerHTML = '<span>📷</span>';
+                photoPreview.classList.remove('has-photo');
+            }
             
             const meninggalGroup = document.getElementById('meninggalGroup');
             if (meninggalGroup) meninggalGroup.style.display = 'none';
@@ -1167,6 +1839,11 @@
             
             const hapusBtn = document.getElementById('hapusBtn');
             if (hapusBtn) hapusBtn.style.display = 'none';
+            
+            // Reset marriage status
+            document.querySelectorAll('.marriage-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
             
             currentEditId = null;
             currentParentId = null;
@@ -1179,12 +1856,15 @@
             const div = document.createElement('div');
             div.className = 'spouse-row';
             div.innerHTML = `
-                <input type="text" placeholder="Nama pasangan" class="spouse-name" style="width:100%; margin-bottom:0.25rem;" required>
-                <select class="spouse-status" style="width:100%; margin-bottom:0.25rem;">
-                    <option value="hidup">Masih Hidup</option>
-                    <option value="meninggal">Meninggal</option>
+                <div class="remove-spouse" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>
+                <input type="text" placeholder="Nama lengkap pasangan" class="spouse-name" style="width:100%; margin-bottom:0.5rem;" required>
+                <select class="spouse-status" style="width:100%;">
+                    <option value="hidup">❤️ Masih Hidup</option>
+                    <option value="meninggal">✝️ Meninggal</option>
                 </select>
-                <button type="button" onclick="this.parentElement.remove()" style="margin-top:0.25rem;">Hapus</button>
+                <div style="margin-top:0.5rem; font-size:0.9rem; color:var(--gray-400);">
+                    <i class="fas fa-info-circle"></i> Data pasangan akan dibuat otomatis
+                </div>
             `;
             container.appendChild(div);
         }
@@ -1197,9 +1877,18 @@
                     const photoPreview = document.getElementById('photoPreview');
                     if (photoPreview) {
                         photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                        photoPreview.classList.add('has-photo');
                     }
                 };
                 reader.readAsDataURL(file);
+            }
+        }
+
+        function toggleStatusMeninggal() {
+            const status = document.getElementById('status')?.value;
+            const meninggalGroup = document.getElementById('meninggalGroup');
+            if (meninggalGroup) {
+                meninggalGroup.style.display = status === 'meninggal' ? 'block' : 'none';
             }
         }
 
@@ -1237,6 +1926,7 @@
                 nama: nama,
                 gender: gender,
                 status: document.getElementById('status')?.value || 'hidup',
+                statusPernikahan: document.getElementById('statusPernikahan')?.value || 'menikah',
                 tahunMeninggal: document.getElementById('tahunMeninggal')?.value || null,
                 keteranganMeninggal: document.getElementById('keteranganMeninggal')?.value || null,
                 tempatLahir: document.getElementById('tempatLahir')?.value || null,
@@ -1252,31 +1942,34 @@
                 anak: []
             };
 
-            // Proses pasangan
-            const spouseRows = document.querySelectorAll('.spouse-row');
-            spouseRows.forEach((row, index) => {
-                const spouseNameInput = row.querySelector('.spouse-name');
-                if (!spouseNameInput) return;
-                
-                const spouseName = spouseNameInput.value.trim().toUpperCase();
-                if (spouseName) {
-                    const spouseStatusSelect = row.querySelector('.spouse-status');
-                    const spouseStatus = spouseStatusSelect ? spouseStatusSelect.value : 'hidup';
-                    const spouseId = 'pasangan_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substr(2, 5);
+            // Proses pasangan hanya jika status pernikahan = menikah
+            if (anggota.statusPernikahan === 'menikah') {
+                const spouseRows = document.querySelectorAll('.spouse-row');
+                spouseRows.forEach((row, index) => {
+                    const spouseNameInput = row.querySelector('.spouse-name');
+                    if (!spouseNameInput) return;
                     
-                    // Buat data pasangan
-                    keluargaData.anggota[spouseId] = {
-                        id: spouseId,
-                        nama: spouseName,
-                        gender: gender === 'L' ? 'P' : 'L',
-                        status: spouseStatus,
-                        pasangan: [id],
-                        anak: []
-                    };
-                    
-                    anggota.pasangan.push(spouseId);
-                }
-            });
+                    const spouseName = spouseNameInput.value.trim().toUpperCase();
+                    if (spouseName) {
+                        const spouseStatusSelect = row.querySelector('.spouse-status');
+                        const spouseStatus = spouseStatusSelect ? spouseStatusSelect.value : 'hidup';
+                        const spouseId = 'pasangan_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substr(2, 5);
+                        
+                        // Buat data pasangan
+                        keluargaData.anggota[spouseId] = {
+                            id: spouseId,
+                            nama: spouseName,
+                            gender: gender === 'L' ? 'P' : 'L',
+                            status: spouseStatus,
+                            statusPernikahan: 'menikah',
+                            pasangan: [id],
+                            anak: []
+                        };
+                        
+                        anggota.pasangan.push(spouseId);
+                    }
+                });
+            }
 
             // Proses foto
             const photoInput = document.getElementById('photoInput');
@@ -1351,6 +2044,11 @@
             const status = document.getElementById('status');
             if (status) status.value = anggota.status || 'hidup';
             
+            // Set status pernikahan
+            if (anggota.statusPernikahan) {
+                pilihStatusPernikahan(anggota.statusPernikahan);
+            }
+            
             const tahunMeninggal = document.getElementById('tahunMeninggal');
             if (tahunMeninggal) tahunMeninggal.value = anggota.tahunMeninggal || '';
             
@@ -1388,8 +2086,10 @@
             if (photoPreview) {
                 if (anggota.foto) {
                     photoPreview.innerHTML = `<img src="${anggota.foto}" alt="Preview">`;
+                    photoPreview.classList.add('has-photo');
                 } else {
                     photoPreview.innerHTML = '<span>📷</span>';
+                    photoPreview.classList.remove('has-photo');
                 }
             }
 
@@ -1406,8 +2106,10 @@
                             const div = document.createElement('div');
                             div.className = 'spouse-row';
                             div.innerHTML = `
-                                <input type="text" value="${pasangan.nama}" readonly style="width:100%; background:var(--gray-100);">
-                                <div style="font-size:0.8rem; margin-top:0.25rem;">${pasangan.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Hidup'}</div>
+                                <input type="text" value="${pasangan.nama}" readonly style="width:100%; background:rgba(0,0,0,0.3);">
+                                <div style="font-size:0.9rem; margin-top:0.5rem; color:var(--gray-300);">
+                                    ${pasangan.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Masih Hidup'}
+                                </div>
                             `;
                             pasanganContainer.appendChild(div);
                         }
@@ -1475,57 +2177,159 @@
             const anggota = keluargaData.anggota[id];
             if (!anggota) return;
 
+            const statusIcon = anggota.status === 'meninggal' ? '✝️' : '❤️';
+            const statusText = anggota.status === 'meninggal' ? 'Meninggal' : 'Masih Hidup';
+            
+            let marriageStatusText = '';
+            let marriageIcon = '';
+            switch(anggota.statusPernikahan) {
+                case 'menikah': marriageIcon = '💍'; marriageStatusText = 'Menikah'; break;
+                case 'cerai': marriageIcon = '💔'; marriageStatusText = 'Cerai'; break;
+                case 'duda': marriageIcon = '👨'; marriageStatusText = 'Duda'; break;
+                case 'janda': marriageIcon = '👩'; marriageStatusText = 'Janda'; break;
+                default: marriageIcon = '💍'; marriageStatusText = 'Menikah';
+            }
+
             let html = `
-                <div style="text-align:center; margin-bottom:1rem;">
-                    <div style="width:120px; height:120px; border-radius:50%; margin:0 auto; background:linear-gradient(135deg, var(--primary), var(--secondary)); background-size:cover; background-position:center; ${anggota.foto ? `background-image:url('${anggota.foto}')` : ''}">
-                        ${!anggota.foto ? `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:2rem;">${getInitials(anggota.nama)}</div>` : ''}
+                <div style="text-align:center; margin-bottom:2rem;">
+                    <div class="detail-avatar" style="${anggota.foto ? `background-image:url('${anggota.foto}')` : `background: linear-gradient(135deg, var(--primary), var(--secondary)); display:flex; align-items:center; justify-content:center;`}">
+                        ${!anggota.foto ? `<span style="font-size:3rem; color:white;">${getInitials(anggota.nama)}</span>` : ''}
                     </div>
-                    <h3 style="margin-top:0.5rem;">${anggota.nama}</h3>
-                    <div style="margin-top:0.5rem;">
-                        <span class="badge" style="background:${anggota.gender === 'L' ? 'var(--primary)' : 'var(--accent)'}">${anggota.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</span>
-                        <span class="badge" style="background:${anggota.status === 'meninggal' ? 'var(--danger)' : 'var(--success)'}">${anggota.status === 'meninggal' ? 'Meninggal' : 'Masih Hidup'}</span>
+                    <h2 style="font-size:2rem; margin-bottom:0.5rem; background: linear-gradient(135deg, #fff, var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${anggota.nama}</h2>
+                    <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:1rem;">
+                        <span class="detail-status-badge" style="background:${anggota.gender === 'L' ? 'var(--primary)' : 'var(--accent)'}">
+                            <i class="fas ${anggota.gender === 'L' ? 'fa-mars' : 'fa-venus'}"></i> ${anggota.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
+                        </span>
+                        <span class="detail-status-badge" style="background:${anggota.status === 'meninggal' ? 'var(--danger)' : 'var(--success)'}">
+                            ${statusIcon} ${statusText}
+                        </span>
+                        <span class="detail-status-badge" style="background:var(--info)">
+                            ${marriageIcon} ${marriageStatusText}
+                        </span>
                     </div>
                 </div>
-                <div style="border-top:1px solid #eee; padding-top:1rem;">
             `;
 
-            if (anggota.tempatLahir || anggota.tanggalLahir) {
-                html += `<p><i class="fas fa-birthday-cake" style="width:20px;"></i> Lahir: ${anggota.tempatLahir || ''} ${anggota.tanggalLahir || ''}</p>`;
-            }
-            if (anggota.alamat) html += `<p><i class="fas fa-map-marker-alt" style="width:20px;"></i> ${anggota.alamat}</p>`;
-            if (anggota.telepon) html += `<p><i class="fas fa-phone" style="width:20px;"></i> ${anggota.telepon}</p>`;
-            if (anggota.pendidikan) html += `<p><i class="fas fa-graduation-cap" style="width:20px;"></i> ${anggota.pendidikan}</p>`;
-            if (anggota.pekerjaan) html += `<p><i class="fas fa-briefcase" style="width:20px;"></i> ${anggota.pekerjaan}</p>`;
+            // Info Grid
+            html += `<div class="info-grid">`;
             
-            if (anggota.pasangan?.length > 0) {
-                html += `<p><i class="fas fa-heart" style="width:20px; color:red;"></i> Pasangan: `;
-                anggota.pasangan.forEach((pId, i) => {
+            if (anggota.tempatLahir || anggota.tanggalLahir) {
+                html += `
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-birthday-cake"></i> Tempat/Tgl Lahir</div>
+                        <div class="info-value">${anggota.tempatLahir || '-'} ${anggota.tanggalLahir || ''}</div>
+                    </div>
+                `;
+            }
+            
+            if (anggota.alamat) {
+                html += `
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-map-marker-alt"></i> Alamat</div>
+                        <div class="info-value">${anggota.alamat}</div>
+                    </div>
+                `;
+            }
+            
+            if (anggota.telepon) {
+                html += `
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-phone"></i> Telepon</div>
+                        <div class="info-value">${anggota.telepon}</div>
+                    </div>
+                `;
+            }
+            
+            if (anggota.pendidikan) {
+                html += `
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-graduation-cap"></i> Pendidikan</div>
+                        <div class="info-value">${anggota.pendidikan}</div>
+                    </div>
+                `;
+            }
+            
+            if (anggota.pekerjaan) {
+                html += `
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-briefcase"></i> Pekerjaan</div>
+                        <div class="info-value">${anggota.pekerjaan}</div>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+
+            // Pasangan
+            if (anggota.pasangan && anggota.pasangan.length > 0) {
+                html += `<div style="margin:1.5rem 0; background:rgba(255,255,255,0.05); border-radius:var(--radius-lg); padding:1.5rem;">`;
+                html += `<h4 style="margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;"><i class="fas fa-heart" style="color:#ff6b6b;"></i> Pasangan</h4>`;
+                anggota.pasangan.forEach(pId => {
                     const p = keluargaData.anggota[pId];
-                    if (p) html += `${i > 0 ? ', ' : ''}${p.nama}`;
+                    if (p) {
+                        html += `
+                            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:var(--radius-lg); cursor:pointer;" onclick="lihatDetail('${p.id}')">
+                                <div style="width:40px; height:40px; border-radius:50%; background:${p.foto ? `url('${p.foto}')` : 'linear-gradient(135deg, var(--primary), var(--secondary))'}; background-size:cover; background-position:center;"></div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600;">${p.nama}</div>
+                                    <div style="font-size:0.8rem; color:var(--gray-400);">${p.status === 'meninggal' ? '✝️ Meninggal' : '❤️ Hidup'}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
                 });
-                html += `</p>`;
+                html += `</div>`;
             }
 
-            if (anggota.anak?.length > 0) {
-                html += `<p><i class="fas fa-child" style="width:20px;"></i> Anak: `;
-                anggota.anak.forEach((aId, i) => {
+            // Anak
+            if (anggota.anak && anggota.anak.length > 0) {
+                html += `<div style="margin:1.5rem 0; background:rgba(255,255,255,0.05); border-radius:var(--radius-lg); padding:1.5rem;">`;
+                html += `<h4 style="margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;"><i class="fas fa-baby"></i> Anak-anak</h4>`;
+                anggota.anak.forEach((aId, index) => {
                     const a = keluargaData.anggota[aId];
-                    if (a) html += `${i > 0 ? ', ' : ''}${a.nama}`;
+                    if (a) {
+                        html += `
+                            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem; padding:0.5rem; background:rgba(255,255,255,0.02); border-radius:var(--radius-lg); cursor:pointer;" onclick="lihatDetail('${a.id}')">
+                                <div style="width:40px; height:40px; border-radius:50%; background:${a.foto ? `url('${a.foto}')` : 'linear-gradient(135deg, var(--primary), var(--secondary))'}; background-size:cover; background-position:center;"></div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600;">${index+1}. ${a.nama}</div>
+                                    <div style="font-size:0.8rem; color:var(--gray-400);">${a.pekerjaan || '-'}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
                 });
-                html += `</p>`;
+                html += `</div>`;
             }
 
-            if (anggota.status === 'meninggal' && anggota.tahunMeninggal) {
-                html += `<p><i class="fas fa-mosque" style="width:20px;"></i> Meninggal: ${anggota.tahunMeninggal} ${anggota.keteranganMeninggal || ''}</p>`;
+            // Keterangan Meninggal
+            if (anggota.status === 'meninggal' && anggota.keteranganMeninggal) {
+                html += `
+                    <div style="margin:1.5rem 0; background:rgba(249, 65, 68, 0.1); border-radius:var(--radius-lg); padding:1.5rem; border-left:4px solid var(--danger);">
+                        <h4 style="margin-bottom:0.5rem;"><i class="fas fa-mosque"></i> Meninggal Dunia</h4>
+                        <p>Tahun: ${anggota.tahunMeninggal || '-'}</p>
+                        <p>Keterangan: ${anggota.keteranganMeninggal}</p>
+                    </div>
+                `;
             }
 
+            // Keterangan Tambahan
+            if (anggota.keterangan) {
+                html += `
+                    <div style="margin:1.5rem 0; background:rgba(255,255,255,0.05); border-radius:var(--radius-lg); padding:1.5rem;">
+                        <h4 style="margin-bottom:0.5rem;"><i class="fas fa-sticky-note"></i> Keterangan</h4>
+                        <p>${anggota.keterangan}</p>
+                    </div>
+                `;
+            }
+
+            // Action Buttons
             html += `
-                </div>
-                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                <div style="display:flex; gap:1rem; margin-top:2rem;">
                     <button class="btn btn-primary" onclick="editAnggota('${id}'); tutupDetailModal();" style="flex:1;">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn" onclick="tutupDetailModal()" style="flex:1;">
+                    <button class="btn" onclick="tutupDetailModal()" style="flex:1; background:rgba(255,255,255,0.1);">
                         <i class="fas fa-times"></i> Tutup
                     </button>
                 </div>
@@ -1627,30 +2431,30 @@
         // ==================== DIAGRAM FUNCTIONS ====================
         function previewDiagram() {
             let html = '<div style="text-align:center;">';
-            html += '<h3 style="margin-bottom:1rem;">🌳 Diagram Keluarga BANI ALI IMRON</h3>';
-            html += '<div style="text-align:left;">';
+            html += '<h3 style="margin-bottom:2rem; font-size:1.5rem;">🌳 Diagram Keluarga BANI ALI IMRON</h3>';
+            html += '<div style="text-align:left; font-size:1.1rem;">';
             
             function renderNode(id, level = 0) {
                 const anggota = keluargaData.anggota[id];
                 if (!anggota) return '';
                 
                 let result = '';
-                const indent = '&nbsp;'.repeat(level * 4);
+                const indent = '&nbsp;'.repeat(level * 6);
+                const symbol = level === 0 ? '👑' : '├─';
                 
-                result += `<div style="margin:0.25rem 0;">${indent}├─ <strong>${anggota.nama}</strong>`;
-                
-                if (anggota.pasangan && anggota.pasangan.length > 0) {
-                    const pasangan = keluargaData.anggota[anggota.pasangan[0]];
-                    if (pasangan) {
-                        result += ` ❤️ ${pasangan.nama}`;
+                let marriageSymbol = '';
+                if (anggota.statusPernikahan) {
+                    switch(anggota.statusPernikahan) {
+                        case 'menikah': marriageSymbol = ' 💍'; break;
+                        case 'cerai': marriageSymbol = ' 💔'; break;
+                        case 'duda': marriageSymbol = ' 👨'; break;
+                        case 'janda': marriageSymbol = ' 👩'; break;
                     }
                 }
                 
-                if (anggota.status === 'meninggal') {
-                    result += ' ✝️';
-                }
+                const statusSymbol = anggota.status === 'meninggal' ? ' ✝️' : ' ❤️';
                 
-                result += '</div>';
+                result += `<div style="margin:0.5rem 0; color:${level === 0 ? 'gold' : 'white'};">${indent}${symbol} <strong>${anggota.nama}</strong>${marriageSymbol}${statusSymbol}</div>`;
                 
                 if (anggota.anak && anggota.anak.length > 0) {
                     anggota.anak.forEach(anakId => {
@@ -1691,20 +2495,7 @@
             });
         }
 
-        // ==================== UTILITY FUNCTIONS ====================
-        function getInitials(nama) {
-            if (!nama) return '?';
-            return nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        }
-
-        function toggleStatusMeninggal() {
-            const status = document.getElementById('status')?.value;
-            const meninggalGroup = document.getElementById('meninggalGroup');
-            if (meninggalGroup) {
-                meninggalGroup.style.display = status === 'meninggal' ? 'block' : 'none';
-            }
-        }
-
+        // ==================== SEARCH FUNCTIONS ====================
         function searchFamily() {
             const searchInput = document.getElementById('searchInput');
             if (!searchInput) return;
@@ -1739,6 +2530,7 @@
             document.querySelectorAll('.photo-item').forEach(photo => photo.style.display = '');
         }
 
+        // ==================== DATA MANAGEMENT ====================
         function resetData() {
             if (!confirm('Reset semua data? Data yang ada akan hilang.')) return;
             
@@ -1793,7 +2585,8 @@
                                 id: newId,
                                 nama: fileName,
                                 foto: ev.target.result,
-                                status: 'hidup'
+                                status: 'hidup',
+                                statusPernikahan: 'menikah'
                             };
                         }
                         
